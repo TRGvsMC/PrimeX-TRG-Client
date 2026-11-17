@@ -8,12 +8,14 @@
 package net.aoba.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.aoba.Aoba;
+import net.aoba.AobaClient;
 import net.aoba.event.events.Render2DEvent;
 import net.aoba.module.modules.render.NoRender;
 import net.aoba.rendering.Renderer2D;
@@ -30,20 +32,28 @@ public class GuiMixin {
 
     @Inject(at = @At("TAIL"), method = "render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V")
     private void onRenderGui(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
-        Renderer2D renderer = Aoba.getInstance().render2D;
+        AobaClient client = Aoba.getInstance();
+        if (client == null || client.render2D == null || client.eventManager == null) return;
+        Renderer2D renderer = client.render2D;
         renderer.beginFrame(context, tickCounter);
-        Aoba.getInstance().eventManager.Fire(new Render2DEvent(renderer));
+        client.eventManager.Fire(new Render2DEvent(renderer));
+    }
+
+    @Unique
+    private NoRender primex$getNoRender() {
+        AobaClient client = Aoba.getInstance();
+        return client == null || client.moduleManager == null ? null : client.moduleManager.norender;
     }
 
     @Inject(method = "renderVignette", at = @At("HEAD"), cancellable = true)
     private void onRenderVignetteOverlay(GuiGraphics context, Entity entity, CallbackInfo ci) {
-        NoRender noRender = Aoba.getInstance().moduleManager.norender;
-        if (noRender.state.getValue() && noRender.getNoVignette()) ci.cancel();
+        NoRender noRender = primex$getNoRender();
+        if (noRender != null && noRender.state.getValue() && noRender.getNoVignette()) ci.cancel();
     }
 
     @ModifyVariable(method = "renderTextureOverlay", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     private float modifyOverlayOpacity(float opacity, GuiGraphics context, Identifier identifier) {
-        NoRender noRender = Aoba.getInstance().moduleManager.norender;
+        NoRender noRender = primex$getNoRender();
         if (noRender == null || !noRender.state.getValue()) return opacity;
         String path = identifier.getPath();
         if (path.equals(PUMPKIN_PATH) && noRender.getNoPumpkinOverlay()) return 0f;
@@ -53,17 +63,19 @@ public class GuiMixin {
 
     @Inject(method = "renderPortalOverlay", at = @At("HEAD"), cancellable = true)
     private void onRenderPortalOverlay(GuiGraphics context, float nauseaStrength, CallbackInfo ci) {
-        NoRender noRender = Aoba.getInstance().moduleManager.norender;
-        if (noRender.state.getValue() && noRender.getNoPortalOverlay()) ci.cancel();
+        NoRender noRender = primex$getNoRender();
+        if (noRender != null && noRender.state.getValue() && noRender.getNoPortalOverlay()) ci.cancel();
     }
 
     @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
     private void onRenderCrosshair(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
-        if (Aoba.getInstance().guiManager.isClickGuiOpen()) {
+        AobaClient client = Aoba.getInstance();
+        if (client == null) return;
+        if (client.guiManager != null && client.guiManager.isClickGuiOpen()) {
             ci.cancel();
             return;
         }
-        NoRender noRender = Aoba.getInstance().moduleManager.norender;
-        if (noRender.state.getValue() && noRender.getNoCrosshair()) ci.cancel();
+        NoRender noRender = primex$getNoRender();
+        if (noRender != null && noRender.state.getValue() && noRender.getNoCrosshair()) ci.cancel();
     }
 }

@@ -84,12 +84,12 @@ public class Renderer2D extends AbstractRenderer {
 	}
 
 	public void captureGameSnapshot() {
-		GpuTexture mainColor = MC.gameRenderer.mainRenderTarget().getColorTexture();
+		GpuTexture mainColor = MC.getMainRenderTarget().getColorTexture();
 		if (mainColor == null)
 			return;
 
-		int fbW = MC.gameRenderer.mainRenderTarget().width;
-		int fbH = MC.gameRenderer.mainRenderTarget().height;
+		int fbW = MC.getMainRenderTarget().width;
+		int fbH = MC.getMainRenderTarget().height;
 		ensureGameSnapshot(fbW, fbH);
 		RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(mainColor, gameSnapshotTexture, 0, 0, 0, 0,
 				0, fbW, fbH);

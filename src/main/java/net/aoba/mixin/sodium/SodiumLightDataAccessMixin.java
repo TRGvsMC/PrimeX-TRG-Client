@@ -14,7 +14,7 @@ import net.aoba.AobaClient;
 import net.aoba.module.modules.render.Fullbright;
 import net.aoba.module.modules.render.XRay;
 import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -36,7 +36,7 @@ public abstract class SodiumLightDataAccessMixin {
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void onInit(CallbackInfo info) {
 		AobaClient aoba = Aoba.getInstance();
-		if (aoba == null) return;
+		if (aoba == null || aoba.moduleManager == null) return;
 		xray = aoba.moduleManager.xray;
 		fb = aoba.moduleManager.fullbright;
 	}

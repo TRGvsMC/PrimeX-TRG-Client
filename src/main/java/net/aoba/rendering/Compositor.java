@@ -1,6 +1,5 @@
 package net.aoba.rendering;
 
-import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
@@ -13,23 +12,21 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.renderpearl.api.buffers.GpuBuffer;
-import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
-import com.mojang.renderpearl.api.commands.CommandEncoder;
-import com.mojang.renderpearl.api.commands.RenderPass;
-import com.mojang.renderpearl.api.pipeline.BlendFunction;
-import com.mojang.renderpearl.api.pipeline.ColorTargetState;
-import com.mojang.renderpearl.api.pipeline.IndexType;
-import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
-import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-import com.mojang.renderpearl.api.textures.GpuSampler;
-import com.mojang.renderpearl.api.textures.GpuTextureView;
-import com.mojang.renderpearl.api.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.systems.CommandEncoder;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.pipeline.BlendFunction;
+
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import net.minecraft.client.gl.GpuSampler;
+import com.mojang.blaze3d.textures.GpuTextureView;
+
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MappableRingBuffer;
-import net.minecraft.client.renderer.Projection;
-import net.minecraft.client.renderer.ProjectionMatrixBuffer;
+import net.minecraft.client.gl.MappableRingBuffer;
+import net.minecraft.client.renderer.CachedOrthoProjectionMatrixBuffer;
 import net.minecraft.client.renderer.RenderPipelines;
 
 /**
@@ -41,19 +38,20 @@ public final class Compositor implements AutoCloseable {
 	private static final RenderPipeline PIPELINE = RenderPipelines.register(
 			RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
 					.withLocation("pipeline/aoba_composite")
-					.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA))
-					.withCull(false).build());
+					.withBlend(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA)
+					.withCull(false)
+					.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS).build());
 
 	private @Nullable ByteBufferBuilder byteBuilder;
 	private @Nullable MappableRingBuffer vertexBuffer;
-	private @Nullable ProjectionMatrixBuffer projectionBuffer;
+	private @Nullable CachedOrthoProjectionMatrixBuffer projectionBuffer;
 
 	public void compose(GpuTextureView textureView, GpuSampler sampler) {
 		Minecraft mc = Minecraft.getInstance();
 		var window = mc.getWindow();
 
 		if (projectionBuffer == null) {
-			projectionBuffer = new ProjectionMatrixBuffer("aoba_composite");
+			projectionBuffer = new CachedOrthoProjectionMatrixBuffer("aoba_composite", 1000.0F, 11000.0F, true);
 		}
 			
 		if (byteBuilder == null) {
@@ -63,15 +61,13 @@ public final class Compositor implements AutoCloseable {
 		float sw = (float) window.getWidth() / window.getGuiScale();
 		float sh = (float) window.getHeight() / window.getGuiScale();
 
-		Projection projection = new Projection();
-		projection.setupOrtho(1000.0F, 11000.0F, sw, sh, true);
-		RenderSystem.setProjectionMatrix(projectionBuffer.getBuffer(projection), ProjectionType.ORTHOGRAPHIC);
+		RenderSystem.setProjectionMatrix(projectionBuffer.getBuffer(sw, sh), ProjectionType.ORTHOGRAPHIC);
 
 		GpuBufferSlice transforms = AbstractRenderer.uploadGuiTransform();
 
-		RenderSystem.AutoStorageIndexBuffer seqBuf = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
+		RenderSystem.AutoStorageIndexBuffer seqBuf = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
 		GpuBuffer idxBuffer = seqBuf.getBuffer(6);
-		IndexType idxType = seqBuf.type();
+		VertexFormat.IndexType idxType = seqBuf.type();
 
 		BufferBuilder builder = new BufferBuilder(byteBuilder, PrimitiveTopology.QUADS,
 				DefaultVertexFormat.POSITION_TEX_COLOR);
@@ -95,25 +91,25 @@ public final class Compositor implements AutoCloseable {
 				vertexBuffer = new MappableRingBuffer(() -> "aoba_composite", VERTEX_BUFFER_USAGE, requiredSize);
 			}
 
-			GpuBuffer gpuBuf = vertexBuffer.currentBuffer();
+			GpuBuffer gpuBuf = vertexBuffer.getBlocking();
 			CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
-			try (GpuBufferSlice.MappedView mapped = gpuBuf.map(0, requiredSize, false, true)) {
+			try (GpuBuffer.MappedView mapped = encoder.mapBuffer(gpuBuf.slice(0, requiredSize), false, true)) {
 				MemoryUtil.memCopy(mesh.vertexBuffer(), mapped.data());
 			}
 
 			try (RenderPass pass = encoder.createRenderPass(() -> "Aoba Composite",
-					mc.gameRenderer.mainRenderTarget().getColorTextureView(), Optional.empty(),
+					mc.gameRenderer.mainRenderTarget().getColorTextureView(), OptionalInt.empty(),
 					mc.gameRenderer.mainRenderTarget().hasDepth() ? mc.gameRenderer.mainRenderTarget().getDepthTextureView() : null,
 					OptionalDouble.empty())) {
 
 				RenderSystem.bindDefaultUniforms(pass);
 				pass.setUniform("DynamicTransforms", transforms);
-				pass.setPipeline(RenderSystem.getCompiledPipeline(PIPELINE));
-				pass.setVertexBuffer(0, gpuBuf.slice());
-				pass.setUniform("Sampler0", textureView, sampler);
+				pass.setPipeline(PIPELINE);
+				pass.setVertexBuffer(0, gpuBuf);
+				pass.bindTexture("Sampler0", textureView, sampler);
 				pass.disableScissor();
 				pass.setIndexBuffer(idxBuffer, idxType);
-				pass.drawIndexed(6, 1, 0, 0, 0);
+				pass.drawIndexed(0, 0, 6, 1);
 			}
 
 			vertexBuffer.rotate();

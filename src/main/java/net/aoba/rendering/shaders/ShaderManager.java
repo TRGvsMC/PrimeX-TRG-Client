@@ -16,13 +16,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.logging.LogUtils;
-import com.mojang.renderpearl.api.pipeline.BindGroupLayout;
-import com.mojang.renderpearl.api.pipeline.BlendFunction;
-import com.mojang.renderpearl.api.pipeline.ColorTargetState;
-import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
-import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-import com.mojang.renderpearl.api.pipeline.UniformType;
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.shaders.UniformType;
 
 import net.aoba.rendering.RenderApi;
 import net.minecraft.client.Minecraft;
@@ -182,33 +180,33 @@ public class ShaderManager {
 
 	// TODO: Can we somehow make these one?
 	private static RenderPipeline buildShaderPipeline2D(String id) {
-		return RenderPipelines.register(RenderPipeline.builder().withVertexShader(aobaShader(""))
+		return RenderPipelines.register(RenderPipeline.builder()
+				.withVertexShader(aobaShader(""))
 				.withFragmentShader(aobaShader(id))
-				.withBindGroupLayout(BindGroupLayout.builder()
-						.withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
-						.withUniform("Projection", UniformType.UNIFORM_BUFFER)
-						.withUniform("AobaShaderParams", UniformType.UNIFORM_BUFFER)
-						.withUniform("Sampler0", UniformType.COMBINED_IMAGE_SAMPLER).build())
+				.withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
+				.withUniform("Projection", UniformType.UNIFORM_BUFFER)
+				.withUniform("AobaShaderParams", UniformType.UNIFORM_BUFFER)
+				.withSampler("Sampler0")
 				.withCull(false)
-				.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA))
-				.withVertexBinding(0, DefaultVertexFormat.POSITION_TEX)
-				.withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
-				.withLocation(Identifier.fromNamespaceAndPath("aoba", "pipeline/aoba_" + id)).build());
+				.withBlend(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA)
+				.withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.TRIANGLES)
+				.withLocation(Identifier.fromNamespaceAndPath("aoba", "pipeline/aoba_" + id))
+				.build());
 	}
 
 	private static RenderPipeline buildShaderPipeline3D(String id) {
-		return RenderPipelines.register(RenderPipeline.builder().withVertexShader(aobaShader(""))
+		return RenderPipelines.register(RenderPipeline.builder()
+				.withVertexShader(aobaShader(""))
 				.withFragmentShader(aobaShader(id))
-				.withBindGroupLayout(BindGroupLayout.builder()
-						.withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
-						.withUniform("Projection", UniformType.UNIFORM_BUFFER)
-						.withUniform("AobaShaderParams", UniformType.UNIFORM_BUFFER)
-						.withUniform("Sampler0", UniformType.COMBINED_IMAGE_SAMPLER).build())
+				.withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
+				.withUniform("Projection", UniformType.UNIFORM_BUFFER)
+				.withUniform("AobaShaderParams", UniformType.UNIFORM_BUFFER)
+				.withSampler("Sampler0")
 				.withCull(false)
-				.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA))
-				.withVertexBinding(0, DefaultVertexFormat.POSITION_TEX)
-				.withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
-				.withLocation(Identifier.fromNamespaceAndPath("aoba", "pipeline/aoba_3d_" + id)).build());
+				.withBlend(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA)
+				.withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.TRIANGLES)
+				.withLocation(Identifier.fromNamespaceAndPath("aoba", "pipeline/aoba_3d_" + id))
+				.build());
 	}
 
 	/**

@@ -1,18 +1,17 @@
 package net.aoba.rendering.msaa;
 
-import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.OptionalDouble;
 
-import org.joml.Vector4f;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.renderpearl.api.GpuFormat;
-import com.mojang.renderpearl.api.commands.RenderPass;
-import com.mojang.renderpearl.api.textures.FilterMode;
-import com.mojang.renderpearl.api.textures.GpuSampler;
-import com.mojang.renderpearl.api.textures.GpuTexture;
-import com.mojang.renderpearl.api.textures.GpuTextureView;
+import com.mojang.blaze3d.textures.TextureFormat;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.textures.FilterMode;
+import net.minecraft.client.gl.GpuSampler;
+import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.GpuTextureView;
 
 public class SSAAHandler implements IAAHandler {
 
@@ -45,9 +44,9 @@ public class SSAAHandler implements IAAHandler {
 		scale = newScale;
 
 		colorTexture = RenderSystem.getDevice().createTexture("aoba_ssaa_color",
-				GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_TEXTURE_BINDING, GpuFormat.RGBA8_UNORM, sw, sh, 1, 1);
+				GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_TEXTURE_BINDING, TextureFormat.RGBA8, sw, sh, 1, 1);
 		colorTextureView = RenderSystem.getDevice().createTextureView(colorTexture);
-		sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR);
+		sampler = RenderSystem.getSamplerCache().get(FilterMode.LINEAR);
 
 		currentWidth = sw;
 		currentHeight = sh;
@@ -56,7 +55,7 @@ public class SSAAHandler implements IAAHandler {
 	@Override
 	public RenderPass beginPass() {
 		return RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Aoba SSAA",
-				colorTextureView, Optional.of(new Vector4f(0.0f)), null, OptionalDouble.empty());
+				colorTextureView, OptionalInt.of(0), null, OptionalDouble.empty());
 	}
 
 	@Override

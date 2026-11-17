@@ -49,7 +49,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.font.TextRenderable;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gl.MappableRingBuffer;
-import net.minecraft.client.renderer.CachedOrthoCachedOrthoProjectionMatrixBuffer;
+import net.minecraft.client.renderer.CachedOrthoProjectionMatrixBuffer;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -553,7 +553,7 @@ public class Renderer2D extends AbstractRenderer {
 			if (!elem.state.batchesWith(currentState)) {
 				finalizeBatch(builder, batches, currentState);
 				currentState = elem.state;
-				builder = new BufferBuilder(byteBufferBuilder, PrimitiveTopology.TRIANGLES,
+				builder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.TRIANGLES,
 						DefaultVertexFormat.POSITION_TEX);
 			}
 
@@ -626,7 +626,7 @@ public class Renderer2D extends AbstractRenderer {
 		int screenH = window.getHeight();
 
 		if (projectionBuffer == null)
-			projectionBuffer = new ProjectionMatrixBuffer("aoba_gui");
+			projectionBuffer = new CachedOrthoProjectionMatrixBuffer("aoba_gui", 1000.0F, 11000.0F, true);
 
 		float sw = (float) screenW / window.getGuiScale();
 		float sh = (float) screenH / window.getGuiScale();

@@ -69,7 +69,7 @@ public final class Compositor implements AutoCloseable {
 		GpuBuffer idxBuffer = seqBuf.getBuffer(6);
 		VertexFormat.IndexType idxType = seqBuf.type();
 
-		BufferBuilder builder = new BufferBuilder(byteBuilder, PrimitiveTopology.QUADS,
+		BufferBuilder builder = new BufferBuilder(byteBuilder, VertexFormat.Mode.QUADS,
 				DefaultVertexFormat.POSITION_TEX_COLOR);
 		builder.addVertex(0, 0, 0).setUv(0, 1).setColor(-1);
 		builder.addVertex(sw, 0, 0).setUv(1, 1).setColor(-1);

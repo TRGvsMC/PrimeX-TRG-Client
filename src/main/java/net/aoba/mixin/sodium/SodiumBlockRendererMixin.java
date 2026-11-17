@@ -9,7 +9,7 @@ import net.aoba.Aoba;
 import net.aoba.AobaClient;
 import net.aoba.module.modules.render.XRay;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 

@@ -20,6 +20,7 @@ public abstract class SodiumFluidRendererImplMixin {
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void onRender(LevelSlice level, BlockState blockState, FluidState fluidState, BlockPos blockPos, BlockPos offset, TranslucentGeometryCollector collector, ChunkBuildBuffers buffers, CallbackInfo ci) {
         AobaClient aoba = Aoba.getInstance();
+        if (aoba == null || aoba.moduleManager == null) return;
         XRay xray = aoba.moduleManager.xray;
         if (xray.state.getValue()) {
             if (!xray.isXRayBlock(blockState.getBlock()) && !xray.fluids.getValue()) {

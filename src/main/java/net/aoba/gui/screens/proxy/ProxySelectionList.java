@@ -11,15 +11,12 @@ package net.aoba.gui.screens.proxy;
 import org.jetbrains.annotations.Nullable;
 
 import net.aoba.Aoba;
-import net.aoba.gui.GuiManager;
-import net.aoba.gui.colors.Colors;
 import net.aoba.managers.proxymanager.Socks5Proxy;
-import net.aoba.rendering.shaders.Shader;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.input.KeyEvent;
@@ -102,22 +99,21 @@ public class ProxySelectionList extends ObjectSelectionList<ProxySelectionList.E
 		}
 
 		@Override
-		public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
+		public void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, float delta) {
 			int x = getX();
 			int y = getY();
 			int lineHeight = 12;
 
-			Shader textColor = Shader.solid(
-					owner.isActiveProxy(proxy) ? Colors.Green :Colors.White);
-
-			Font font = GuiManager.fontSetting.getValue().getRenderer();
-			Aoba.getInstance().render2D.drawStringWithScale("IP: " + proxy.getIp(), x + 32 + 3, y, textColor, 1.0f, font);
-			Aoba.getInstance().render2D.drawStringWithScale( "Port: " + proxy.getPort(), x + 32 + 3, y + lineHeight,
-					textColor, 1.0f, font);
-			Aoba.getInstance().render2D.drawStringWithScale( "Username: " + proxy.getUsername(), x + 32 + 3,
-					y + lineHeight * 2, textColor, 1.0f, font);
-			Aoba.getInstance().render2D.drawStringWithScale( "*".repeat(proxy.getPassword().length()), x + 32 + 3,
-					y + lineHeight * 3, textColor, 1.0f, font);
+            int textColor = owner.isActiveProxy(proxy) ? 0xFF78D99A : 0xFFF4EDFF;
+            Font font = Minecraft.getInstance().font;
+            graphics.drawString(font, "IP: " + proxy.getIp(), x + 35, y, textColor, false);
+            graphics.drawString(font, "Port: " + proxy.getPort(), x + 35, y + lineHeight,
+                    textColor, false);
+            graphics.drawString(font, "Username: " + proxy.getUsername(), x + 35, y + lineHeight * 2,
+                    textColor, false);
+            String password = proxy.getPassword();
+            graphics.drawString(font, "*".repeat(password == null ? 0 : password.length()),
+                    x + 35, y + lineHeight * 3, textColor, false);
 		}
 	}
 }

@@ -52,7 +52,7 @@ public class EditAltScreen extends Screen {
     }
 
     @Override
-	public void render(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
+	public void render(final GuiGraphics graphics, final int mouseX, final int mouseY, final float a) {
 		super.render(graphics, mouseX, mouseY, a);
 		graphics.drawCenteredString(font, "Edit Alternate Account", width / 2, 20, 0xFFFFFFFF);
 		graphics.drawString(font, "Username:", width / 2 - 100, height / 2 - 50, 0xFFFFFFFF);

@@ -91,17 +91,17 @@ public class AddProxyScreen extends Screen {
 	}
 
 	public void onButtonCancelPressed() {
-		minecraft.gui.setScreen(parent);
+		minecraft.setScreen(parent);
 	}
 
     @Override
-	public void render(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
+	public void render(final GuiGraphics graphics, final int mouseX, final int mouseY, final float a) {
 		super.render(graphics, mouseX, mouseY, a);
 		graphics.drawCenteredString(font, "Add Proxy", width / 2, 20, 0xFFFFFFFF);
 
 		graphics.drawString(font, "IP Address:", width / 2 - 100, height / 2 - 90, 0xFFFFFFFF);
-		graphics.text(font, "Port:", width / 2 - 100, height / 2 - 50, 0xFFFFFFFF);
-		graphics.text(font, "Username:", width / 2 - 100, height / 2 - 10, 0xFFFFFFFF);
-		graphics.text(font, "Password:", width / 2 - 100, height / 2 + 30, 0xFFFFFFFF);
+		graphics.drawString(font, "PORT", width / 2 - 100, height / 2 - 50, 0xFFB98AFF, false);
+		graphics.drawString(font, "USERNAME", width / 2 - 100, height / 2 - 10, 0xFFB98AFF, false);
+		graphics.drawString(font, "PASSWORD", width / 2 - 100, height / 2 + 30, 0xFFB98AFF, false);
 	}
 }

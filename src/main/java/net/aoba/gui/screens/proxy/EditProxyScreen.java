@@ -11,7 +11,7 @@ package net.aoba.gui.screens.proxy;
 import net.aoba.Aoba;
 import net.aoba.AobaClient;
 import net.aoba.managers.proxymanager.Socks5Proxy;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -73,13 +73,13 @@ public class EditProxyScreen extends Screen {
 	}
 
     @Override
-	public void extractRenderState(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
-		super.extractRenderState(graphics, mouseX, mouseY, a);
-		graphics.centeredText(font, "Edit Proxy", width / 2, 20, 0xFFFFFFFF);
-		graphics.text(font, "IP:", width / 2 - 100, height / 2 - 90, 0xFFFFFFFF);
-		graphics.text(font, "Port:", width / 2 - 100, height / 2 - 50, 0xFFFFFFFF);
-		graphics.text(font, "Username:", width / 2 - 100, height / 2 - 10, 0xFFFFFFFF);
-		graphics.text(font, "Password:", width / 2 - 100, height / 2 + 30, 0xFFFFFFFF);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		super.render(graphics, mouseX, mouseY, delta);
+		graphics.drawCenteredString(font, "EDIT PROXY", width / 2, 20, 0xFFF4EDFF);
+		graphics.drawString(font, "IP ADDRESS", width / 2 - 100, height / 2 - 90, 0xFFB98AFF, false);
+		graphics.drawString(font, "PORT", width / 2 - 100, height / 2 - 50, 0xFFB98AFF, false);
+		graphics.drawString(font, "USERNAME", width / 2 - 100, height / 2 - 10, 0xFFB98AFF, false);
+		graphics.drawString(font, "PASSWORD", width / 2 - 100, height / 2 + 30, 0xFFB98AFF, false);
 	}
 
 	private void updateSaveButtonState() {
@@ -98,13 +98,13 @@ public class EditProxyScreen extends Screen {
 			proxy.setUsername(username.isEmpty() ? null : username);
 			proxy.setPassword(password.isEmpty() ? null : password);
 			Aoba.getInstance().proxyManager.saveProxies();
-			minecraft.gui.setScreen(parent);
+			minecraft.setScreen(parent);
 		} catch (NumberFormatException e) {
 			AobaClient.LOGGER.error(e.getMessage());
 		}
 	}
 
 	private void onButtonCancelPressed() {
-		minecraft.gui.setScreen(parent);
+		minecraft.setScreen(parent);
 	}
 }

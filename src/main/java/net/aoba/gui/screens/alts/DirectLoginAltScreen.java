@@ -53,27 +53,26 @@ public class DirectLoginAltScreen extends Screen {
 	private void onButtonLoginPressed() {
 		if (isCracked.selected()) {
 			Aoba.getInstance().altManager.loginCracked(textFieldAltUsername.getValue());
-			minecraft.gui.setScreen(parent);
+			minecraft.setScreen(parent);
 			return;
 		} else {
 			buttonLoginAlt.active = false;
 			Alt alt = new Alt(textFieldAltUsername.getValue(), false);
 			Aoba.getInstance().altManager.loginWithAuth(alt, () -> {
-				minecraft.execute(() -> minecraft.gui.setScreen(parent));
+				minecraft.execute(() -> minecraft.setScreen(parent));
 			});
 		}
 	}
 
 	@Override
-	public void render(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
+	public void render(final GuiGraphics graphics, final int mouseX, final int mouseY, final float a) {
 		super.render(graphics, mouseX, mouseY, a);
 		graphics.drawCenteredString(font, title.getString(), width / 2, 20, 0xFFFFFFFF);
 		graphics.drawString(font, "Enter Username/Email", width / 2 - 100, height / 2 - 60,
 				0xFFFFFFFF);
-		textFieldAltUsername.extractRenderState(graphics, mouseX, mouseY, a);
-		if (didLoginError) {
-			graphics.text(font, "Incorrect Login (Try using Email rather than Username)",
-					width / 2 - 140, 116, 0xFFFF0000);
+				if (didLoginError) {
+			graphics.drawString(font, "Incorrect Login (Try using Email rather than Username)",
+					width / 2 - 140, 116, 0xFFFF7777, false);
 		}
 
 	}

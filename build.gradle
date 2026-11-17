@@ -94,7 +94,6 @@ java {
 }
 
 jar {
-    archiveFileName = "PRIMEX-TRG-CLIENT-${project.minecraft_version}.jar"
     from("LICENSE") {
         rename { "${it}_${project.base.archivesName.get()}" }
     }
@@ -102,10 +101,6 @@ jar {
         configurations.libImpl.collect { it.isDirectory() ? it : zipTree(it) }
     }
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-}
-
-tasks.named("remapJar") {
-    archiveFileName = "PRIMEX-TRG-CLIENT-${project.minecraft_version}.jar"
 }
 
 // configure the maven publication

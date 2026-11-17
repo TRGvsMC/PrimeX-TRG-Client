@@ -174,7 +174,7 @@ public class AobaClient {
 			}
 		}));
 
-		LOGGER.info("[Aoba] PRIMEX TRG CLIENT initialized and ready to play!");
+		LOGGER.info("[Aoba] Aoba-chan initialized and ready to play!");
 	}
 
 	/**

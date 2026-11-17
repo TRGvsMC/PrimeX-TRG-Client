@@ -24,16 +24,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.aoba.Aoba;
-import net.minecraft.client.renderer.Lightmap;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.level.dimension.DimensionType;
 
-@Mixin(Lightmap.class)
+@Mixin(LightTexture.class)
 public class LightmapMixin {
 	@Inject(at = { @At("HEAD") }, method = {
 			"getBrightness(Lnet/minecraft/world/level/dimension/DimensionType;I)F" }, cancellable = true)
 	private static void onGetBrightness(DimensionType dimensionType, int level,
 			CallbackInfoReturnable<Float> cir) {
-		if (Aoba.getInstance().moduleManager.norender.state.getValue()) {
+		if (Aoba.getInstance() != null && Aoba.getInstance().moduleManager != null
+                && Aoba.getInstance().moduleManager.norender.state.getValue()) {
 			cir.setReturnValue(0F);
 		}
 	}

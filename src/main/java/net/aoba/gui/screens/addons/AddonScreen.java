@@ -89,7 +89,10 @@ public class AddonScreen extends Screen {
 				graphics.fill(282, 60, 330, 108, 0xFF000000);
 
 				// Draw the texture
-				graphics.blit(RenderPipelines.GUI_TEXTURED, entry.getIcon(), 282, 60, 0.0F, 0.0F, 48, 48, 48, 48);
+				if (entry.getIcon() != null) {
+					graphics.blit(RenderPipelines.GUI_TEXTURED, entry.getIcon(), 282, 60,
+							0.0F, 0.0F, 48, 48, 48, 48);
+				}
 			}
 			graphics.drawString(font, selectedAddon.getName(), 338, 68, 0xFFFFFFFF);
 			graphics.drawString(font, selectedAddon.getVersion(), 338, 80, 0xFFB98AFF, false);

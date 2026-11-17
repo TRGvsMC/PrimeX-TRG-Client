@@ -107,7 +107,7 @@ public class AltSelectionList extends ObjectSelectionList<AltSelectionList.Entry
 		}
 
 		private void drawHead(GuiGraphics drawContext, int x, int y) {
-			PlayerFaceRenderer.draw(drawContext, entry.getSkin(), x, y, 24);
+			if (entry != null) PlayerFaceRenderer.draw(drawContext, entry.getSkin(), x, y, 24);
 		}
 
 		@Override

@@ -5,24 +5,26 @@ import static net.aoba.AobaClient.MC;
 import java.awt.Color;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 import org.jetbrains.annotations.Nullable;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import com.mojang.blaze3d.systems.RenderSystem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.aoba.Aoba;
 import net.aoba.gui.GuiManager;
 import net.aoba.gui.colors.Colors;
 import net.aoba.module.modules.render.Tooltips;
 import net.aoba.rendering.shaders.Shader;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
@@ -42,161 +44,129 @@ import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
-@Mixin(value = { AbstractContainerScreen.class })
+@Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMenu> extends Screen implements MenuAccess<T> {
-	@Unique
-	private Runnable postRender;
-	@Unique
-	private final MapRenderState mapRenderState = new MapRenderState();
+    @Unique
+    private final MapRenderState primex$mapRenderState = new MapRenderState();
 
-	protected AbstractContainerScreenMixin(Component title) {
-		super(title);
-	}
+    protected AbstractContainerScreenMixin(Component title) {
+        super(title);
+    }
 
-	@Shadow
-	@Nullable
-	protected Slot hoveredSlot;
-	@Shadow
-	protected int leftPos;
-	@Shadow
-	protected int topPos;
+    @Shadow @Nullable protected Slot hoveredSlot;
+    @Shadow protected int leftPos;
+    @Shadow protected int topPos;
 
-	private boolean hasItems(ItemStack itemStack) {
-		ItemContainerContents compoundTag = itemStack.get(DataComponents.CONTAINER);
-		return compoundTag != null;
-	}
+    @Unique
+    private boolean primex$hasItems(ItemStack stack) {
+        return stack.get(DataComponents.CONTAINER) != null;
+    }
 
-	@Inject(method = "extractRenderState", at = @At("TAIL"))
-	private void onRender(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-		Tooltips tooltips = Aoba.getInstance().moduleManager.tooltips;
+    @Inject(method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", at = @At("TAIL"))
+    private void primex$renderContainerPreviews(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        Tooltips tooltips = Aoba.getInstance().moduleManager.tooltips;
+        if (!tooltips.state.getValue() || hoveredSlot == null || hoveredSlot.getItem().isEmpty()
+                || minecraft.player.inventoryMenu.getCarried().isEmpty() == false) return;
 
-		if (tooltips.state.getValue() && hoveredSlot != null && !hoveredSlot.getItem().isEmpty()
-				&& minecraft.player.inventoryMenu.getCarried().isEmpty()) {
-			if (hasItems(hoveredSlot.getItem()) && tooltips.getStorage()) {
-				renderShulkerToolTip(context, mouseX, mouseY, 0, 0, hoveredSlot.getItem());
-			} else if (hoveredSlot.getItem().getItem() == Items.FILLED_MAP && tooltips.getMap()) {
-				drawMapPreview(context, hoveredSlot.getItem(), mouseX, mouseY);
-			}
-		}
-	}
+        ItemStack stack = hoveredSlot.getItem();
+        if (primex$hasItems(stack) && tooltips.getStorage()) {
+            primex$renderShulkerTooltip(context, mouseX, mouseY, mouseX, mouseY, stack);
+        } else if (stack.is(Items.FILLED_MAP) && tooltips.getMap()) {
+            primex$drawMapPreview(context, stack, mouseX, mouseY);
+        }
+    }
 
-	public boolean renderShulkerToolTip(GuiGraphicsExtractor context, int offsetX, int offsetY, int mouseX, int mouseY,
-			ItemStack stack) {
-		try {
-			ItemContainerContents compoundTag = stack.get(DataComponents.CONTAINER);
-			if (compoundTag == null)
-				return false;
+    @Unique
+    private boolean primex$renderShulkerTooltip(GuiGraphics context, int x, int y, int mouseX, int mouseY, ItemStack stack) {
+        ItemContainerContents contents = stack.get(DataComponents.CONTAINER);
+        if (contents == null) return false;
 
-			float[] colors = new float[] { 1F, 1F, 1F };
-			Item focusedItem = stack.getItem();
-			if (focusedItem instanceof BlockItem bi && bi.getBlock() instanceof ShulkerBoxBlock) {
-				try {
-					ShulkerBoxBlock shulkerBoxBlock = (ShulkerBoxBlock) bi.getBlock();
+        float[] tint = {1.0F, 1.0F, 1.0F, 1.0F};
+        Item item = stack.getItem();
+        if (item instanceof BlockItem blockItem && blockItem.getBlock() instanceof ShulkerBoxBlock shulker) {
+            try {
+                Color color = new Color(Objects.requireNonNull(shulker.getColor()).getTextureDiffuseColor(), true);
+                tint = new float[] {color.getRed() / 255.0F, color.getGreen() / 255.0F,
+                        color.getBlue() / 255.0F, color.getAlpha() / 255.0F};
+            } catch (NullPointerException ignored) {
+                // Use the neutral preview tint for colorless shulker variants.
+            }
+        }
 
-					Color c = new Color(Objects.requireNonNull(shulkerBoxBlock.getColor()).getTextureDiffuseColor());
-					colors = new float[] { c.getRed() / 255f, c.getGreen() / 255f, c.getRed() / 255f,
-							c.getAlpha() / 255f };
-				} catch (NullPointerException npe) {
-					colors = new float[] { 1F, 1F, 1F };
-				}
-			}
+        List<ItemStack> items = contents.itemCopies().toList();
+        int panelX = x + 8;
+        int panelY = y - 82;
+        primex$drawShulkerBackground(context, panelX, panelY, tint);
 
-			int tooltipWidth = 150;
-			int nameHeight = 12;
+        int row = 0;
+        int column = 0;
+        for (ItemStack contained : items) {
+            if (!contained.isEmpty()) {
+                int itemX = panelX + 8 + column * 18;
+                int itemY = panelY + 7 + row * 18;
+                context.renderItem(contained, itemX, itemY);
+                if (mouseX >= itemX && mouseX < itemX + 16 && mouseY >= itemY && mouseY < itemY + 16) {
+                    context.setTooltipForNextFrame(font, getTooltipFromItem(MC, contained),
+                            contained.getTooltipImage(), mouseX, mouseY);
+                }
+            }
 
-			Font aobaFont = GuiManager.fontSetting.getValue().getRenderer();
-			Aoba.getInstance().render2D.drawStringWithScale(stack.getHoverName().getString(), offsetX + 10, offsetY - 10,
-					Shader.solid(Colors.White), 1.0f, aobaFont);
+            if (++column >= 9) {
+                column = 0;
+                row++;
+            }
+        }
 
-			extractRenderState(context, compoundTag.itemCopies().toList(), offsetX, offsetY + nameHeight, mouseX, mouseY, colors);
+        Font previewFont = GuiManager.fontSetting.getValue().getRenderer();
+        Aoba.getInstance().render2D.drawStringWithScale(stack.getHoverName().getString(),
+                panelX + 7, panelY - 11, Shader.solid(Colors.White), 1.0F, previewFont);
+        return true;
+    }
 
-			context.fill(offsetX, offsetY - nameHeight, offsetX + tooltipWidth, offsetY,
-					new Color(0, 0, 0, 128).getRGB());
-			Aoba.getInstance().render2D.drawStringWithScale(stack.getHoverName().getString(), offsetX + 5, offsetY - 10,
-					Shader.solid(Colors.White), 1.0f, aobaFont);
+    @Unique
+    private void primex$drawShulkerBackground(GuiGraphics context, int x, int y, float[] tint) {
+        int width = 178;
+        int height = 70;
+        int accent = new Color(tint[0], tint[1], tint[2], 1.0F).getRGB();
+        context.fill(x, y, x + width, y + height, 0xF20C0B12);
+        context.fill(x, y, x + width, y + 2, accent);
+        context.fill(x, y + height - 1, x + width, y + height, 0xFF554267);
+        context.fill(x, y, x + 1, y + height, 0xFF554267);
+        context.fill(x + width - 1, y, x + width, y + height, 0xFF554267);
+    }
 
-		} catch (Exception ignore) {
-			return false;
-		}
-		return true;
-	}
+    @Unique
+    private void primex$drawMapPreview(GuiGraphics context, ItemStack stack, int mouseX, int mouseY) {
+        MapItemSavedData mapData = MapItem.getSavedData(stack, minecraft.level);
+        if (mapData == null) return;
 
-	@Unique
-	private void extractRenderState(GuiGraphicsExtractor context, List<ItemStack> itemStacks, int offsetX, int offsetY, int mouseX, int mouseY,
-			float[] colors) {
-		try (var pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
-				() -> "Aoba Depth Clear",
-				MC.gameRenderer.mainRenderTarget().getColorTextureView(),
-				Optional.empty(),
-				MC.gameRenderer.mainRenderTarget().hasDepth() ? MC.gameRenderer.mainRenderTarget().getDepthTextureView() : null,
-				OptionalDouble.of(1.0))) {
-		}
+        mapData.getHoldingPlayer(minecraft.player);
+        MapId mapId = stack.get(DataComponents.MAP_ID);
+        if (mapId == null) return;
 
-		offsetX += 8;
-		offsetY -= 82;
+        int x = mouseX + 16;
+        int y = mouseY - 4;
+        float scale = 84.0F / 128.0F;
+        context.pose().pushMatrix();
+        context.pose().translate(x, y);
+        context.pose().scale(scale, scale);
+        MapRenderer mapRenderer = minecraft.getMapRenderer();
+        mapRenderer.extractRenderState(mapId, mapData, primex$mapRenderState);
+        context.submitMapRenderState(primex$mapRenderState);
+        context.pose().popMatrix();
+    }
 
-		drawBackground(context, offsetX, offsetY, colors);
+    @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("HEAD"), cancellable = true)
+    private void primex$hideVanillaPreviewTooltip(GuiGraphics context, int mouseX, int mouseY, CallbackInfo ci) {
+        Tooltips tooltips = Aoba.getInstance().moduleManager.tooltips;
+        if (!tooltips.state.getValue() || hoveredSlot == null || hoveredSlot.getItem().isEmpty()
+                || !minecraft.player.inventoryMenu.getCarried().isEmpty()) return;
 
-		int row = 0;
-		int i = 0;
-		for (ItemStack itemStack : itemStacks) {
-			context.item(itemStack, offsetX + 8 + i * 18, offsetY + 7 + row * 18);
-
-			if (mouseX > offsetX + 8 + i * 18 && mouseX < offsetX + 28 + i * 18 && mouseY > offsetY + 7 + row * 18
-					&& mouseY < offsetY + 27 + row * 18)
-				postRender = () -> context.setTooltipForNextFrame(font, getTooltipFromItem(MC, itemStack),
-						itemStack.getTooltipImage(), mouseX, mouseY);
-
-			i++;
-			if (i >= 9) {
-				i = 0;
-				row++;
-			}
-		}
-	}
-
-	private void drawBackground(GuiGraphicsExtractor context, int x, int y, float[] colors) {
-	}
-
-	private void drawMapPreview(GuiGraphicsExtractor context, ItemStack stack, int x, int y) {
-		int y1 = y - 12;
-		int x1 = x + 8;
-
-		MapItemSavedData mapState = MapItem.getSavedData(stack, minecraft.level);
-
-		if (mapState != null) {
-			mapState.getHoldingPlayer(minecraft.player);
-
-			x1 += 8;
-			y1 += 8;
-			double scale = (double) (100 - 16) / 128.0D;
-
-			MapId mapId = stack.get(DataComponents.MAP_ID);
-			if (mapId != null) {
-				context.pose().pushMatrix();
-				context.pose().translate(x1, y1);
-				context.pose().scale((float) scale, (float) scale);
-
-				MapRenderer mapRenderer = minecraft.getMapRenderer();
-				mapRenderer.extractRenderState(mapId, mapState, mapRenderState);
-				context.map(mapRenderState);
-				context.pose().popMatrix();
-			}
-		}
-	}
-
-	@Inject(method = "extractTooltip", at = @At("HEAD"), cancellable = true)
-	private void onDrawMouseoverTooltip(GuiGraphicsExtractor context, int x, int y, CallbackInfo ci) {
-		Tooltips tooltips = Aoba.getInstance().moduleManager.tooltips;
-
-		if (hoveredSlot != null && !hoveredSlot.getItem().isEmpty()
-				&& minecraft.player.inventoryMenu.getCarried().isEmpty()) {
-			if (hoveredSlot.getItem().getItem() == Items.FILLED_MAP && tooltips.state.getValue() && tooltips.getMap())
-				ci.cancel();
-			else if (hoveredSlot.getItem().getItem() instanceof BlockItem
-					&& ((BlockItem) hoveredSlot.getItem().getItem()).getBlock() instanceof ShulkerBoxBlock
-					&& tooltips.state.getValue() && tooltips.getStorage())
-				ci.cancel();
-		}
-	}
+        ItemStack stack = hoveredSlot.getItem();
+        if ((stack.is(Items.FILLED_MAP) && tooltips.getMap())
+                || (stack.getItem() instanceof BlockItem blockItem
+                    && blockItem.getBlock() instanceof ShulkerBoxBlock && tooltips.getStorage())) {
+            ci.cancel();
+        }
+    }
 }

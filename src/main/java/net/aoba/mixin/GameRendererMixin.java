@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.aoba.Aoba;
 import net.aoba.AobaClient;
 import net.minecraft.client.renderer.GameRenderer;
 
@@ -20,7 +21,7 @@ import net.minecraft.client.renderer.GameRenderer;
 public abstract class GameRendererMixin {
     @Inject(at = @At("HEAD"), method = "bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V", cancellable = true)
     private void onBobViewWhenHurt(PoseStack poseStack, float partialTick, CallbackInfo ci) {
-        AobaClient client = AobaClient.getInstance();
+        AobaClient client = Aoba.getInstance();
         if (client != null && client.moduleManager != null && client.moduleManager.norender.state.getValue()) {
             ci.cancel();
         }

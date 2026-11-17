@@ -10,13 +10,13 @@ import org.lwjgl.system.MemoryStack;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.renderpearl.api.GpuFormat;
-import com.mojang.renderpearl.api.buffers.GpuBuffer;
-import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
-import com.mojang.renderpearl.api.textures.FilterMode;
-import com.mojang.renderpearl.api.textures.GpuSampler;
-import com.mojang.renderpearl.api.textures.GpuTexture;
-import com.mojang.renderpearl.api.textures.GpuTextureView;
+import com.mojang.blaze3d.textures.TextureFormat;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.textures.FilterMode;
+import net.minecraft.client.gl.GpuSampler;
+import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.GpuTextureView;
 
 import net.aoba.rendering.shaders.ShaderUniformRingBuffer;
 
@@ -53,17 +53,16 @@ public abstract class AbstractRenderer implements AutoCloseable {
 			return;
 
 		whiteTexture = RenderSystem.getDevice().createTexture("aoba_white_pixel",
-				GpuTexture.USAGE_TEXTURE_BINDING | GpuTexture.USAGE_COPY_DST, GpuFormat.RGBA8_UNORM, 1, 1, 1, 1);
+				GpuTexture.USAGE_TEXTURE_BINDING, TextureFormat.RGBA8, 1, 1, 1, 1);
 
 		whiteTextureView = RenderSystem.getDevice().createTextureView(whiteTexture);
 
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			ByteBuffer pixel = stack.malloc(4).put((byte) -1).put((byte) -1).put((byte) -1).put((byte) -1).flip();
-			RenderSystem.getDevice().createCommandEncoder().writeToTexture(whiteTexture, pixel, 0, 0, 0,
-					0, 1, 1);
+			RenderSystem.getDevice().createCommandEncoder().writeToTexture(whiteTexture, pixel, NativeImage.Format.RGBA, 0, 0, 0, 0, 1, 1);
 		}
 
-		whiteSampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
+		whiteSampler = RenderSystem.getSamplerCache().get(FilterMode.NEAREST);
 	}
 
 	public static GpuTextureView getWhiteTextureView() {

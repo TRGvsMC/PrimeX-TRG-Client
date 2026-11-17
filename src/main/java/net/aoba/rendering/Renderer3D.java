@@ -13,8 +13,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import org.joml.Matrix4f;
@@ -314,7 +312,7 @@ public class Renderer3D extends AbstractRenderer {
 				shadersList.add(batch.shader);
 			}
 			List<GpuBufferSlice> paramSlices = getShaderParamsBuffer().upload(shadersList, 1);
-			RenderSystem.AutoStorageIndexBuffer seqBuf = RenderSystem.getSequentialBuffer(PrimitiveTopology.TRIANGLES);
+			RenderSystem.AutoStorageIndexBuffer seqBuf = RenderSystem.getSequentialBuffer(VertexFormat.Mode.TRIANGLES);
 			GpuBuffer idxBuffer = seqBuf.getBuffer(maxIdx);
 			VertexFormat.IndexType idxType = seqBuf.type();
 			GpuBufferSlice transforms = uploadIdentityTransform();

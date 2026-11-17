@@ -7,11 +7,11 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.renderpearl.api.buffers.GpuBuffer;
-import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
-import com.mojang.renderpearl.api.commands.CommandEncoder;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.systems.CommandEncoder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MappableRingBuffer;
+import net.minecraft.client.gl.MappableRingBuffer;
 
 /**
  * Manages per-shader UBO uploads.
@@ -47,12 +47,12 @@ public class ShaderUniformRingBuffer implements AutoCloseable {
 				ringBuffer.close();
 			ringBuffer = new MappableRingBuffer(() -> "aoba_shader_params", USAGE, Math.max(totalSize, 4096));
 		}
-		GpuBuffer gpuBuf = ringBuffer.currentBuffer();
+		GpuBuffer gpuBuf = ringBuffer.getBlocking();
 
 		// Create a UBO slice for each shader.
 		List<GpuBufferSlice> slices = new ArrayList<>(numShaders);
 		CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
-		try (GpuBufferSlice.MappedView mapped = gpuBuf.map(0, totalSize, false, true)) {
+		try (GpuBuffer.MappedView mapped = encoder.mapBuffer(gpuBuf.slice(0, totalSize), false, true)) {
 			ByteBuffer data = mapped.data();
 			int offset = 0;
 			for (Shader shader : shaders) {

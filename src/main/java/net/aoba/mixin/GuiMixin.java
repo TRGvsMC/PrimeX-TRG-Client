@@ -28,8 +28,8 @@ public class GuiMixin {
     private static final String POWDER_SNOW_PATH = "textures/misc/powder_snow_outline.png";
     private static final String PUMPKIN_PATH = "textures/misc/pumpkinblur.png";
 
-    @Inject(at = @At("TAIL"), method = "renderTabList(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V")
-    private void onRenderPlayerList(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+    @Inject(at = @At("TAIL"), method = "render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V")
+    private void onRenderGui(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
         Renderer2D renderer = Aoba.getInstance().render2D;
         renderer.beginFrame(context, tickCounter);
         Aoba.getInstance().eventManager.Fire(new Render2DEvent(renderer));

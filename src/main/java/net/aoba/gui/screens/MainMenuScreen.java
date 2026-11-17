@@ -52,7 +52,7 @@ public class MainMenuScreen extends Screen {
         addMenuButton(startX, startY + (BUTTON_HEIGHT + SPACING) * 2, "Add-ons",
                 () -> minecraft.setScreen(new AddonScreen(this)));
         addMenuButton(startX + BUTTON_WIDTH + SPACING, startY + (BUTTON_HEIGHT + SPACING) * 2, "Quit",
-                () -> minecraft.stop());
+                () -> minecraft.destroy());
 
         AobaButtonWidget credits = new AobaButtonWidget(width - 184, height - 34, 82, 22,
                 Component.literal("Credits"));
@@ -91,10 +91,8 @@ public class MainMenuScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        super.render(graphics, mouseX, mouseY, delta);
         int centerX = width / 2;
         int startY = (height - (BUTTON_HEIGHT * 3 + SPACING * 2)) / 2 + smallScreenHeightOffset;
-        graphics.fill(0, 0, width, height, 0xE9090A10);
         graphics.fill(centerX - 100, startY - 55, centerX + 100, startY - 53, 0xFF9B65E8);
         graphics.drawCenteredString(font, "PRIMEX TRG", centerX, startY - 88, 0xFFF4EDFF);
         graphics.drawCenteredString(font, "CLIENT", centerX, startY - 72, 0xFFB98AFF);
@@ -111,6 +109,7 @@ public class MainMenuScreen extends Screen {
                 y += 12;
             }
         }
+        super.render(graphics, mouseX, mouseY, delta);
     }
 
     @Override

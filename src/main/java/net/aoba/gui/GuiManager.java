@@ -138,49 +138,49 @@ public class GuiManager implements KeyDownListener, TickListener, Render2DListen
 
 	public static ShaderSetting windowBorderColor = ShaderSetting.builder().id("ui_window_border_color")
 			.displayName("UI Border Color").description("Color of the borders.")
-			.defaultValue(Shader.solid(new Color(0, 0, 0))).build();
+			.defaultValue(Shader.solid(new Color(8, 8, 13, 245))).build();
 
 	public static ShaderSetting panelBorderColor = ShaderSetting.builder().id("ui_panel_border_color")
 			.displayName("UI Panel Border Color").description("Accent color of the background.")
-			.defaultValue(Shader.solid(new Color(100, 100, 100, 100))).build();
+			.defaultValue(Shader.solid(new Color(110, 86, 145, 100))).build();
 
 	public static ShaderSetting componentBackgroundColor = ShaderSetting.builder().id("ui_component_background_color")
 			.displayName("UI Component Background Color").description("Background colors of components (i.e TextBox).")
-			.defaultValue(Shader.solid(new Color(20, 20, 20, 95))).build();
+			.defaultValue(Shader.solid(new Color(18, 17, 25, 235))).build();
 	
 	public static ShaderSetting componentHoveredBackgroundColor = ShaderSetting.builder().id("ui_component_hover_background_color")
 			.displayName("UI Component Hovered Background Color").description("Background colors of components (i.e TextBox) when hovered.")
-			.defaultValue(Shader.solid(new Color(50, 50, 50, 150))).build();
+			.defaultValue(Shader.solid(new Color(34, 28, 46, 245))).build();
 	
 	public static ShaderSetting componentBorderColor = ShaderSetting.builder().id("ui_component_border_color")
 			.displayName("UI Component Border Color").description("Background colors of components (i.e TextBox).")
-			.defaultValue(Shader.solid(new Color(115, 115, 115, 200))).build();
+			.defaultValue(Shader.solid(new Color(115, 91, 150, 180))).build();
 	
 	public static ShaderSetting windowBackgroundColor = ShaderSetting.builder().id("ui_window_background_color")
 			.displayName("UI Background Color").description("Color of the background.")
-			.defaultValue(Shader.blur(new Color(55, 55, 55, 255), 60f, 5f)).build();
+			.defaultValue(Shader.blur(new Color(13, 12, 19, 248), 42f, 4f)).build();
 
 	public static ShaderSetting panelBackgroundColor = ShaderSetting.builder().id("ui_panel_background_color")
 			.displayName("UI Panel Background Color").description("Accent color of the background.")
-			.defaultValue(Shader.solid(new Color(90, 90, 90, 60))).build();
+			.defaultValue(Shader.solid(new Color(26, 23, 35, 220))).build();
 
 	public static ShaderSetting buttonBackgroundColor = ShaderSetting.builder().id("ui_button_background_color")
 			.displayName("UI Button Background Color").description("Background color of buttons.")
-			.defaultValue(Shader.gradient(new Color(180, 50, 220), new Color(100, 20, 160), 90f)).build();
+			.defaultValue(Shader.solid(new Color(55, 36, 76, 245))).build();
 
 	public static ShaderSetting buttonHoverBackgroundColor = ShaderSetting.builder()
 			.id("ui_button_hover_background_color").displayName("UI Button Hover Background Color")
 			.description("Background color of buttons when hovered.")
-			.defaultValue(Shader.gradient(new Color(210, 80, 255), new Color(130, 40, 190), 90f)).build();
+			.defaultValue(Shader.solid(new Color(78, 49, 108, 250))).build();
 	
 	public static ShaderSetting buttonPressedBackgroundColor = ShaderSetting.builder()
 			.id("ui_button_pressed_background_color").displayName("UI Button Pressed Background Color")
 			.description("Background color of buttons when pressed.")
-			.defaultValue(Shader.gradient(new Color(150, 20, 195), new Color(70, 0, 130), 90f)).build();
+			.defaultValue(Shader.solid(new Color(42, 28, 58, 255))).build();
 
 	public static ShaderSetting buttonBorderColor = ShaderSetting.builder().id("ui_button_border_color")
 			.displayName("UI Button Border Color").description("Border color of buttons.")
-			.defaultValue(Shader.gradient(new Color(220, 100, 255), new Color(140, 50, 200), 90f)).build();
+			.defaultValue(Shader.solid(new Color(160, 104, 210, 220))).build();
 
 	public static FloatSetting roundingRadius = FloatSetting.builder().id("hud_rounding_radius")
 			.displayName("Corner Rounding").description("The radius of the rounding on hud.").defaultValue(12f)
@@ -190,8 +190,8 @@ public class GuiManager implements KeyDownListener, TickListener, Render2DListen
 			.displayName("Line Thickness").description("The thickness of borders and outlines.").defaultValue(0.5f)
 			.minValue(0.5f).maxValue(4f).step(0.5f).build();
 
-	public static FontSetting fontSetting = FontSetting.builder().id("aoba_font").displayName("Font")
-			.description("The font that Aoba will use.").fontName(FontManager.DEFAULT_FONT).build();
+	public static FontSetting fontSetting = FontSetting.builder().id("primex_font").displayName("Font")
+			.description("The font used by PRIMEX TRG CLIENT.").fontName(FontManager.DEFAULT_FONT).build();
 
 	public ModuleSelectorHud moduleSelector;
 	public ArmorHud armorHud;

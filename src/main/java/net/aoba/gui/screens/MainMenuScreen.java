@@ -38,7 +38,7 @@ public class MainMenuScreen extends Screen {
 	int smallScreenHeightOffset = 0;
 
 	public MainMenuScreen() {
-		super(Component.nullToEmpty("Aoba Client Main Menu"));
+		super(Component.nullToEmpty("PRIMEX TRG CLIENT"));
 	}
 
 	public void init() {
@@ -122,13 +122,13 @@ public class MainMenuScreen extends Screen {
 		int startX = (width - BUTTON_WIDTH) / 2;
 		int startY = (int) ((height - widgetHeight) / 2 + smallScreenHeightOffset);
 
-		int logoWidth = (int) (LOGO_HEIGHT * (719.0 / 270.0));
-		int logoX = (width - logoWidth) / 2;
-		int logoY = startY - LOGO_HEIGHT;
-		drawContext.blit(RenderPipelines.GUI_TEXTURED, TextureBank.mainmenu_logo, logoX, logoY, 0, 0, logoWidth,
-				LOGO_HEIGHT, 719, 270, 719, 270);
-
-		drawContext.text(font, "Aoba Client", 2, height - 10, 0xFFFF00FF);
+		String brand = "PRIMEX TRG";
+		String product = "CLIENT";
+		int brandWidth = font.width(brand);
+		int productWidth = font.width(product);
+		drawContext.text(font, brand, (width - brandWidth) / 2, startY - LOGO_HEIGHT - 12, 0xFFF2EEFF);
+		drawContext.text(font, product, (width - productWidth) / 2, startY - LOGO_HEIGHT + 2, 0xFFB66CFF);
+		drawContext.text(font, "PRIMEX TRG CLIENT", 2, height - 10, 0xFFB66CFF);
 
 		if (AobaClient.addons.isEmpty()) {
 			String noAddonsText = "No addons loaded";

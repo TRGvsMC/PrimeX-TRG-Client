@@ -5,91 +5,57 @@
  * Licensed under the GNU General Public License, Version 3 or later.
  * See <http://www.gnu.org/licenses/>.
  */
-
 package net.aoba.gui.screens;
 
 import java.util.Arrays;
 import java.util.List;
-import net.aoba.Aoba;
-import net.aoba.gui.GuiManager;
-import net.aoba.gui.colors.Colors;
-import net.aoba.rendering.shaders.Shader;
-import net.aoba.rendering.utils.TextureBank;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 
+/** PRIMEX credits screen, rendered with the 1.21.11 GuiGraphics API. */
 public class AobaCreditsScreen extends Screen {
-	protected static final AobaPanorama AOBA_ROTATING_PANORAMA_RENDERER = new AobaPanorama();
+    private static final List<String> CONTRIBUTORS = Arrays.asList(
+            "coltonk9043", "cvs0", "Tewxx", "OsakiTsukiko",
+            "Logging4J", "TangyKiwi", "Xatsec", "BatchDebug");
+    private float animationProgress;
 
-	private static final List<String> CONTRIBUTORS = Arrays.asList("coltonk9043", "cvs0", "Tewxx", "OsakiTsukiko", "Logging4J", "TangyKiwi", "Xatsec", "BatchDebug");
+    public AobaCreditsScreen() {
+        super(Component.literal("PRIMEX TRG CLIENT - Credits"));
+    }
 
-	private int currentContributorIndex = 0;
-	private float animationProgress = 0.0f;
-	private static final long ANIMATION_DURATION = 200000;
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        renderBackground(graphics, mouseX, mouseY, delta);
+        animationProgress += delta / 200.0f;
+        if (animationProgress >= 1.0f) animationProgress -= 1.0f;
+        int lineHeight = font.lineHeight + 10;
+        int contentHeight = CONTRIBUTORS.size() * lineHeight;
+        int baseY = (int) (height - animationProgress * (height + contentHeight));
+        graphics.drawCenteredString(font, "PRIMEX TRG CLIENT", width / 2, baseY - 80, 0xFFB98AFF);
+        graphics.drawCenteredString(font, "CREDITS", width / 2, baseY - 62, 0xFFF4EDFF);
+        for (int i = 0; i < CONTRIBUTORS.size(); i++) {
+            int y = baseY + i * lineHeight;
+            float alpha = fadeAlpha(y);
+            int color = ((int) (alpha * 255) << 24) | 0x00E9E1F2;
+            graphics.drawCenteredString(font, CONTRIBUTORS.get(i), width / 2, y, color);
+        }
+        graphics.drawCenteredString(font, "Press ESC to return", width / 2, height - 24, 0xFF9B8EAA);
+        super.render(graphics, mouseX, mouseY, delta);
+    }
 
-	public AobaCreditsScreen() {
-		super(Component.nullToEmpty("PRIMEX TRG CLIENT — Credits"));
-	}
+    private float fadeAlpha(int y) {
+        float fadeHeight = Math.max(1.0f, height / 4.0f);
+        float alpha = 1.0f;
+        if (y < fadeHeight) alpha = y / fadeHeight;
+        else if (y > height - fadeHeight) alpha = (height - y) / fadeHeight;
+        return Math.max(0.0f, Math.min(1.0f, alpha));
+    }
 
-	@Override
-	protected void init() {
-		super.init();
-	}
-
-	@Override
-	public void extractRenderState(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
-		super.extractRenderState(graphics, mouseX, mouseY, a);
-
-		animationProgress += a / (ANIMATION_DURATION / 1000.0f);
-		if (animationProgress >= 1.0f) {
-			animationProgress = 0.0f;
-			currentContributorIndex = (currentContributorIndex + 1) % CONTRIBUTORS.size();
-		}
-
-		int textHeight = font.lineHeight;
-		int totalHeight = CONTRIBUTORS.size() * (textHeight + 10);
-		int startY = height;
-		int endY = -totalHeight;
-
-		int baseY = (int) (startY + (endY - startY) * animationProgress);
-		int logoY = baseY + 20;
-		graphics.centeredText(font, "PRIMEX TRG CLIENT", width / 2, logoY - 100, 0xFFB66CFF);
-
-		for (int i = 0; i < CONTRIBUTORS.size(); i++) {
-			int textWidth = font.width(CONTRIBUTORS.get(i));
-			int textX = (width - (textWidth * 2)) / 2;
-			int textY = baseY + i * (textHeight + 10);
-			float alpha = getFadeAlpha(textY);
-			drawContributorName(graphics, CONTRIBUTORS.get(i), textX, textY, alpha);
-		}
-	}
-
-	private float getFadeAlpha(int y) {
-		float fadeHeight = height / 4.0f;
-		float alpha = 1.0f;
-
-		if (y < fadeHeight) {
-			alpha = y / fadeHeight;
-		} else if (y > height - fadeHeight) {
-			alpha = (height - y) / fadeHeight;
-		}
-
-		return Math.max(0.0f, Math.min(1.0f, alpha));
-	}
-
-	private void drawContributorName(GuiGraphicsExtractor context, String contributor, int x, int y, float alpha) {
-		Aoba.getInstance().render2D.drawString(contributor, (float) x, (float) y,
-				Shader.solid(Colors.White.withAlpha((int) (alpha * 255))),
-				GuiManager.fontSetting.getValue().getRenderer());
-	}
-
-	@Override
-	protected void extractPanorama(final GuiGraphicsExtractor graphics, final float a){
-		try {
-			AOBA_ROTATING_PANORAMA_RENDERER.extractRenderState(graphics, this.width, this.height, true);
-		} catch (IllegalStateException e) {
-		}
-	}
+    @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        graphics.fill(0, 0, width, height, 0xFF0B0A10);
+        graphics.fill(0, height / 3, width, height, 0xFF100D18);
+    }
 }

@@ -5,171 +5,117 @@
  * Licensed under the GNU General Public License, Version 3 or later.
  * See <http://www.gnu.org/licenses/>.
  */
-
 package net.aoba.gui.screens;
 
 import static net.aoba.AobaClient.MC;
+
+import java.net.URI;
+
 import com.mojang.realmsclient.RealmsMainScreen;
-import org.jspecify.annotations.Nullable;
 import net.aoba.AobaClient;
 import net.aoba.api.IAddon;
 import net.aoba.gui.components.widgets.AobaButtonWidget;
-import net.aoba.gui.components.widgets.AobaImageButtonWidget;
 import net.aoba.gui.screens.addons.AddonScreen;
-import net.aoba.rendering.utils.TextureBank;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import java.net.URI;
-import com.mojang.blaze3d.Blaze3D;
+import net.minecraft.util.Util;
 
+/** PRIMEX main menu using the 1.21.11 GuiGraphics screen lifecycle. */
 public class MainMenuScreen extends Screen {
-	protected static final AobaPanorama AOBA_ROTATING_PANORAMA_RENDERER = new AobaPanorama();
+    private static final int BUTTON_WIDTH = 164;
+    private static final int BUTTON_HEIGHT = 27;
+    private static final int SPACING = 8;
+    private int smallScreenHeightOffset;
 
-	final int LOGO_HEIGHT = Math.max(58, height / 12);
-	final int BUTTON_WIDTH = Math.max(150, width / 6);
-	final int BUTTON_HEIGHT = Math.max(25, height / 20);
-	final int SPACING = Math.max(5, height / 100);
+    public MainMenuScreen() {
+        super(Component.literal("PRIMEX TRG CLIENT"));
+    }
 
-	int smallScreenHeightOffset = 0;
+    @Override
+    protected void init() {
+        super.init();
+        smallScreenHeightOffset = height <= 650 ? 34 : 0;
+        int startX = (width - (BUTTON_WIDTH * 2 + SPACING)) / 2;
+        int startY = (height - (BUTTON_HEIGHT * 3 + SPACING * 2)) / 2 + smallScreenHeightOffset;
 
-	public MainMenuScreen() {
-		super(Component.nullToEmpty("PRIMEX TRG CLIENT"));
-	}
+        addMenuButton(startX, startY, "Singleplayer", () -> minecraft.setScreen(new SelectWorldScreen(this)));
+        addMenuButton(startX + BUTTON_WIDTH + SPACING, startY, "Multiplayer",
+                () -> minecraft.setScreen(new JoinMultiplayerScreen(this)));
+        addMenuButton(startX, startY + BUTTON_HEIGHT + SPACING, "Realms",
+                () -> minecraft.setScreen(new RealmsMainScreen(this)));
+        addMenuButton(startX + BUTTON_WIDTH + SPACING, startY + BUTTON_HEIGHT + SPACING, "Settings",
+                () -> minecraft.setScreen(new OptionsScreen(this, MC.options)));
+        addMenuButton(startX, startY + (BUTTON_HEIGHT + SPACING) * 2, "Add-ons",
+                () -> minecraft.setScreen(new AddonScreen(this)));
+        addMenuButton(startX + BUTTON_WIDTH + SPACING, startY + (BUTTON_HEIGHT + SPACING) * 2, "Quit",
+                () -> minecraft.stop());
 
-	public void init() {
-		super.init();
+        AobaButtonWidget credits = new AobaButtonWidget(width - 184, height - 34, 82, 22,
+                Component.literal("Credits"));
+        credits.setPressAction(button -> MC.setScreen(new AobaCreditsScreen()));
+        addRenderableWidget(credits);
 
-		if (height <= 650)
-			smallScreenHeightOffset = 40;
-		else
-			smallScreenHeightOffset = 0;
+        AobaButtonWidget discord = new AobaButtonWidget(width - 94, height - 34, 82, 22,
+                Component.literal("Discord"));
+        discord.setPressAction(button -> Util.getPlatform().openUri(URI.create("https://discord.gg/CDa4etPFtk")));
+        addRenderableWidget(discord);
 
-		int columns = 2;
-		int rows = 3;
-		float widgetHeight = ((BUTTON_HEIGHT + SPACING) * rows);
-		int startX = (int) ((width - (BUTTON_WIDTH * columns + SPACING * (columns - 1))) / 2.0f);
-		int startY = (int) ((height - widgetHeight) / 2) + smallScreenHeightOffset;
+        try {
+            Class<?> modsScreen = getClass().getClassLoader()
+                    .loadClass("com.terraformersmc.modmenu.gui.ModsScreen");
+            AobaButtonWidget mods = new AobaButtonWidget(12, height - 34, 82, 22,
+                    Component.literal("Mods"));
+            mods.setPressAction(button -> {
+                try {
+                    minecraft.setScreen((Screen) modsScreen.getConstructor(Screen.class).newInstance(this));
+                } catch (ReflectiveOperationException exception) {
+                    exception.printStackTrace();
+                }
+            });
+            addRenderableWidget(mods);
+        } catch (ClassNotFoundException ignored) {
+            // Mod Menu is optional.
+        }
+    }
 
-		AobaButtonWidget singleplayerButton = new AobaButtonWidget(startX, startY, BUTTON_WIDTH, BUTTON_HEIGHT,
-				Component.nullToEmpty("Singleplayer"));
-		singleplayerButton.setPressAction(b -> minecraft.gui.setScreen(new SelectWorldScreen(this)));
-		addRenderableWidget(singleplayerButton);
+    private void addMenuButton(int x, int y, String label, Runnable action) {
+        AobaButtonWidget button = new AobaButtonWidget(x, y, BUTTON_WIDTH, BUTTON_HEIGHT,
+                Component.literal(label));
+        button.setPressAction(ignored -> action.run());
+        addRenderableWidget(button);
+    }
 
-		AobaButtonWidget multiplayerButton = new AobaButtonWidget(startX + BUTTON_WIDTH + SPACING, startY, BUTTON_WIDTH,
-				BUTTON_HEIGHT, Component.nullToEmpty("Multiplayer"));
-		multiplayerButton.setPressAction(b -> minecraft.gui.setScreen(new JoinMultiplayerScreen(this)));
-		addRenderableWidget(multiplayerButton);
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        super.render(graphics, mouseX, mouseY, delta);
+        int centerX = width / 2;
+        int startY = (height - (BUTTON_HEIGHT * 3 + SPACING * 2)) / 2 + smallScreenHeightOffset;
+        graphics.fill(0, 0, width, height, 0xE9090A10);
+        graphics.fill(centerX - 100, startY - 55, centerX + 100, startY - 53, 0xFF9B65E8);
+        graphics.drawCenteredString(font, "PRIMEX TRG", centerX, startY - 88, 0xFFF4EDFF);
+        graphics.drawCenteredString(font, "CLIENT", centerX, startY - 72, 0xFFB98AFF);
+        graphics.drawString(font, "PRIMEX TRG CLIENT", 12, height - 12, 0xFFB98AFF, false);
 
-		AobaButtonWidget realmsButton = new AobaButtonWidget(startX, startY + BUTTON_HEIGHT + SPACING, BUTTON_WIDTH,
-				BUTTON_HEIGHT, Component.nullToEmpty("Realms"));
-		realmsButton.setPressAction(b -> minecraft.gui.setScreen(new RealmsMainScreen(this)));
-		addRenderableWidget(realmsButton);
+        if (AobaClient.addons.isEmpty()) {
+            String status = "No add-ons loaded";
+            graphics.drawString(font, status, width - font.width(status) - 12, 12, 0xFFB8AFC4, false);
+        } else {
+            int y = 12;
+            for (IAddon addon : AobaClient.addons) {
+                String line = addon.getName() + "  /  " + addon.getAuthor();
+                graphics.drawString(font, line, width - font.width(line) - 12, y, 0xFFD8C9EC, false);
+                y += 12;
+            }
+        }
+    }
 
-		AobaButtonWidget settingsButton = new AobaButtonWidget(startX + BUTTON_WIDTH + SPACING,
-				startY + BUTTON_HEIGHT + SPACING, BUTTON_WIDTH, BUTTON_HEIGHT, Component.nullToEmpty("Settings"));
-		settingsButton.setPressAction(b -> minecraft.gui.setScreen(new OptionsScreen(this, MC.options)));
-		addRenderableWidget(settingsButton);
-
-		AobaButtonWidget addonsButton = new AobaButtonWidget(startX, startY + ((BUTTON_HEIGHT + SPACING) * 2),
-				BUTTON_WIDTH, BUTTON_HEIGHT, Component.nullToEmpty("Addons"));
-		addonsButton.setPressAction(b -> minecraft.gui.setScreen(new AddonScreen(this)));
-		addRenderableWidget(addonsButton);
-
-		AobaButtonWidget quitButton = new AobaButtonWidget(startX + BUTTON_WIDTH + SPACING,
-				startY + ((BUTTON_HEIGHT + SPACING) * 2), BUTTON_WIDTH, BUTTON_HEIGHT, Component.nullToEmpty("Quit"));
-		quitButton.setPressAction(b -> minecraft.stop());
-		addRenderableWidget(quitButton);
-		
-		try {
-			Class<?> modsScreen = this.getClass().getClassLoader().loadClass("com.terraformersmc.modmenu.gui.ModsScreen");
-			
-			AobaButtonWidget modsButton = new AobaButtonWidget(startX,
-					startY + ((BUTTON_HEIGHT + SPACING) * 3), BUTTON_WIDTH, BUTTON_HEIGHT, Component.nullToEmpty("Mods"));
-			
-			modsButton.setPressAction(b -> {
-				try {
-					minecraft.gui.setScreen((@Nullable Screen) modsScreen.getConstructor(Screen.class).newInstance(this));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			});
-			
-			addRenderableWidget(modsButton);
-		} catch (ClassNotFoundException e) {}
-
-		AobaButtonWidget creditsButton = new AobaButtonWidget(width - 184, height - 34, 82, 22,
-				Component.literal("Credits"));
-		creditsButton.setPressAction(b -> MC.gui.setScreen(new AobaCreditsScreen()));
-		addRenderableWidget(creditsButton);
-
-		AobaButtonWidget discordButton = new AobaButtonWidget(width - 94, height - 34, 82, 22,
-				Component.literal("Discord"));
-		discordButton.setPressAction(b -> Blaze3D.openUri(URI.create("https://discord.gg/CDa4etPFtk")));
-		addRenderableWidget(discordButton);
-
-	}
-
-	@Override
-	public void extractRenderState(GuiGraphicsExtractor drawContext, int mouseX, int mouseY, float delta) {
-		super.extractRenderState(drawContext, mouseX, mouseY, delta);
-
-		float widgetHeight = (BUTTON_HEIGHT + SPACING) * 5;
-		int startX = (width - BUTTON_WIDTH) / 2;
-		int startY = (int) ((height - widgetHeight) / 2 + smallScreenHeightOffset);
-
-		String brand = "PRIMEX TRG";
-		String product = "CLIENT";
-		int brandWidth = font.width(brand);
-		int productWidth = font.width(product);
-		drawContext.text(font, brand, (width - brandWidth) / 2, startY - LOGO_HEIGHT - 12, 0xFFF2EEFF);
-		drawContext.text(font, product, (width - productWidth) / 2, startY - LOGO_HEIGHT + 2, 0xFFB66CFF);
-		drawContext.fill(width / 2 - 58, startY - 5, width / 2 + 58, startY - 3, 0xFFB66CFF);
-		drawContext.text(font, "PRIMEX TRG CLIENT", 12, height - 12, 0xFFB66CFF);
-
-		if (AobaClient.addons.isEmpty()) {
-			String noAddonsText = "No addons loaded";
-			int textWidth = font.width(noAddonsText);
-			drawContext.text(font, noAddonsText, width - textWidth - 15, 10, 0xFFFFFFFF);
-		} else {
-			int yOffset = 10;
-			for (IAddon addon : AobaClient.addons) {
-				String addonName = addon.getName();
-				String byText = " by ";
-				String author = addon.getAuthor();
-
-				int addonNameWidth = font.width(addonName);
-				int byTextWidth = font.width(byText);
-				int authorWidth = font.width(author);
-
-				drawContext.text(font, addonName,
-						width - addonNameWidth - byTextWidth - authorWidth - 20, yOffset, 0xFF50C878);
-
-				drawContext.text(font, byText, width - byTextWidth - authorWidth - 15, yOffset,
-						0xFFFFFFFF);
-
-				drawContext.text(font, author, width - authorWidth - 10, yOffset, 0xFFFF0000);
-
-				yOffset += 10;
-			}
-		}
-	}
-
-	@Override
-	public void extractBackground(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
-		extractPanorama(graphics, a);
-		graphics.fill(0, 0, width, height, 0xA6080912);
-	}
-
-	@Override
-	protected void extractPanorama(final GuiGraphicsExtractor graphics, final float a){
-		try {
-			AOBA_ROTATING_PANORAMA_RENDERER.extractRenderState(graphics, this.width, this.height, true);
-		} catch (IllegalStateException e) {
-		}
-	}
+    @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        graphics.fill(0, 0, width, height, 0xFF0B0A10);
+        graphics.fill(0, 0, width, Math.max(1, height / 3), 0xFF11101A);
+    }
 }

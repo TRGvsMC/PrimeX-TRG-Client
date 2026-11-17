@@ -5,75 +5,48 @@
  * Licensed under the GNU General Public License, Version 3 or later.
  * See <http://www.gnu.org/licenses/>.
  */
-
 package net.aoba.gui.components.widgets;
 
-import static net.aoba.AobaClient.MC;
 import java.util.function.Consumer;
-import net.aoba.Aoba;
-import net.aoba.gui.GuiManager;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.aoba.rendering.Renderer2D;
-import net.aoba.rendering.shaders.Shader;
+
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
+/** Lightweight 1.21.11-compatible PRIMEX button. */
 public class AobaButtonWidget extends AbstractButton {
-	private Consumer<AobaButtonWidget> pressAction;
-	private long hoverStartTime = 0;
-	private static final long HOVER_ANIMATION_DURATION = 200000000;
+    private Consumer<AobaButtonWidget> pressAction;
 
-	public AobaButtonWidget(int x, int y, int width, int height, Component message) {
-		super(x, y, width, height, message);
-	}
+    public AobaButtonWidget(int x, int y, int width, int height, Component message) {
+        super(x, y, width, height, message);
+    }
 
-	public void setPressAction(Consumer<AobaButtonWidget> pressAction) {
-		this.pressAction = pressAction;
-	}
+    public void setPressAction(Consumer<AobaButtonWidget> pressAction) {
+        this.pressAction = pressAction;
+    }
 
-	@Override
-	public void onPress(InputWithModifiers input) {
-		if (pressAction != null) {
-			pressAction.accept(this);
-		}
-	}
+    @Override
+    public void onPress(InputWithModifiers input) {
+        if (pressAction != null) pressAction.accept(this);
+    }
 
-	@Override
-	protected void updateWidgetNarration(NarrationElementOutput builder) {
-	}
+    @Override
+    protected void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        int background = isHovered() ? 0xFF30213F : 0xFF19151F;
+        int border = isHovered() ? 0xFFB98AFF : 0xFF554267;
+        int foreground = isHovered() ? 0xFFFFFFFF : 0xFFE9E1F2;
+        graphics.fill(getX(), getY(), getX() + width, getY() + height, background);
+        graphics.fill(getX(), getY(), getX() + width, getY() + 1, border);
+        graphics.fill(getX(), getY() + height - 1, getX() + width, getY() + height, border);
+        graphics.fill(getX(), getY(), getX() + 1, getY() + height, border);
+        graphics.fill(getX() + width - 1, getY(), getX() + width, getY() + height, border);
+        graphics.drawCenteredString(net.minecraft.client.Minecraft.getInstance().font,
+                getMessage(), getX() + width / 2, getY() + (height - 8) / 2, foreground);
+    }
 
-	@Override
-	protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-		if (isHovered() && hoverStartTime == 0) {
-			hoverStartTime = System.nanoTime();
-		} else if (!isHovered()) {
-			hoverStartTime = 0;
-		}
-
-		long currentTime = System.nanoTime();
-		float hoverProgress = hoverStartTime > 0 ? (currentTime - hoverStartTime) / (float) HOVER_ANIMATION_DURATION
-				: 0;
-		hoverProgress = Math.min(hoverProgress, 1.0f);
-		hoverProgress = (float) Math.sin(hoverProgress * Math.PI / 2);
-
-		Shader bgEffect = isHovered() ? GuiManager.buttonHoverBackgroundColor.getValue() : GuiManager.buttonBackgroundColor.getValue();
-		Shader bdEffect = GuiManager.buttonBorderColor.getValue();
-
-		Renderer2D renderer = Aoba.getInstance().render2D;
-		renderer.beginFrame(graphics, MC.getDeltaTracker());
-		renderer.drawOutlinedRoundedBox(getX(), getY(), width, height, GuiManager.roundingRadius.getValue(),
-				bdEffect, bgEffect);
-
-		Font font = GuiManager.fontSetting.getValue().getRenderer();
-		int textWidth = font.width(getMessage().getString());
-		int textHeight = font.lineHeight;
-		int textX = getX() + (width - textWidth) / 2;
-		int textY = getY() + (height - textHeight) / 2 - (int) (2 * hoverProgress) + 2;
-
-		renderer.drawStringWithScale(getMessage().getString(), textX, textY,
-				GuiManager.foregroundColor.getValue(), 1f, font);
-	}
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput output) {
+    }
 }

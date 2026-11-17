@@ -1,25 +1,26 @@
 package net.aoba.gui.screens;
 
+import net.aoba.rendering.utils.TextureBank;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.CubeMap;
+import net.minecraft.client.renderer.PanoramaRenderer;
 
-public class AobaPanorama {
-	public static final Identifier PANORAMA_OVERLAY = Identifier.withDefaultNamespace("textures/gui/title/background/panorama_overlay.png");
-	private float spin;
+/** 1.21.11 panorama adapter retained for optional callers. */
+public final class AobaPanorama {
+    private static final CubeMap CUBE_MAP = new CubeMap(TextureBank.mainmenu_panorama);
+    private static final PanoramaRenderer PANORAMA = new PanoramaRenderer(CUBE_MAP);
+    private static boolean texturesRegistered;
 
-	public void extractRenderState(final GuiGraphicsExtractor graphics, final int width, final int height, final boolean shouldSpin) {
-		Minecraft minecraft = Minecraft.getInstance();
-		if (shouldSpin) {
-			float delta = minecraft.getDeltaTracker().getRealtimeDeltaTicks();
-			float speed = (float) (delta * minecraft.gameRenderer.gameRenderState().optionsRenderState.panoramaSpeed);
-			this.spin = Mth.wrapDegrees(this.spin + speed * 0.1f);
-		}
+    public static void registerPanoramaTextures() {
+        if (!texturesRegistered) {
+            CUBE_MAP.registerTextures(Minecraft.getInstance().getTextureManager());
+            texturesRegistered = true;
+        }
+    }
 
-		minecraft.gameRenderer.gameRenderState().guiRenderState.panoramaRenderState = new PanoramaRenderState(-this.spin);
-		graphics.blit(RenderPipelines.GUI_TEXTURED, PANORAMA_OVERLAY, 0, 0, 0.0f, 0.0f, width, height, 16, 128, 16, 128);
-	}
+    public void render(GuiGraphics graphics, int width, int height, boolean shouldSpin) {
+        if (!texturesRegistered) registerPanoramaTextures();
+        PANORAMA.render(graphics, width, height, shouldSpin);
+    }
 }

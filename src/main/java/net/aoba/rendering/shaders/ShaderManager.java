@@ -24,7 +24,6 @@ import com.mojang.blaze3d.shaders.UniformType;
 
 import net.aoba.rendering.RenderApi;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 
@@ -180,7 +179,7 @@ public class ShaderManager {
 
 	// TODO: Can we somehow make these one?
 	private static RenderPipeline buildShaderPipeline2D(String id) {
-		return RenderPipelines.register(RenderPipeline.builder()
+		return RenderPipeline.builder()
 				.withVertexShader(aobaShader(""))
 				.withFragmentShader(aobaShader(id))
 				.withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
@@ -191,7 +190,7 @@ public class ShaderManager {
 				.withBlend(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA)
 				.withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.TRIANGLES)
 				.withLocation(Identifier.fromNamespaceAndPath("aoba", "pipeline/aoba_" + id))
-				.build());
+				.build();
 	}
 
 	private static RenderPipeline buildShaderPipeline3D(String id) {
@@ -206,7 +205,7 @@ public class ShaderManager {
 				.withBlend(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA)
 				.withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.TRIANGLES)
 				.withLocation(Identifier.fromNamespaceAndPath("aoba", "pipeline/aoba_3d_" + id))
-				.build());
+				.build();
 	}
 
 	/**

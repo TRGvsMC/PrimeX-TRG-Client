@@ -18,6 +18,8 @@ import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.platform.DepthTestFunction;
+import com.mojang.blaze3d.shaders.UniformType;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.gl.GpuSampler;
@@ -27,7 +29,6 @@ import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gl.MappableRingBuffer;
 import net.minecraft.client.renderer.CachedOrthoProjectionMatrixBuffer;
-import net.minecraft.client.renderer.RenderPipelines;
 
 /**
  * Composites an offscreen texture onto the main render target
@@ -35,12 +36,18 @@ import net.minecraft.client.renderer.RenderPipelines;
 public final class Compositor implements AutoCloseable {
 	private static final int VERTEX_BUFFER_USAGE = GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_MAP_WRITE;
 
-	private static final RenderPipeline PIPELINE = RenderPipelines.register(
-			RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
-					.withLocation("pipeline/aoba_composite")
-					.withBlend(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA)
-					.withCull(false)
-					.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS).build());
+	private static final RenderPipeline PIPELINE = RenderPipeline.builder()
+			.withVertexShader("core/position_tex_color")
+			.withFragmentShader("core/position_tex_color")
+			.withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
+			.withUniform("Projection", UniformType.UNIFORM_BUFFER)
+			.withSampler("Sampler0")
+			.withLocation("pipeline/aoba_composite")
+			.withBlend(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA)
+			.withCull(false)
+			.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+			.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
+			.build();
 
 	private @Nullable ByteBufferBuilder byteBuilder;
 	private @Nullable MappableRingBuffer vertexBuffer;

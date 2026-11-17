@@ -54,11 +54,15 @@ public class LevelRendererMixin {
 
     @Inject(at = @At("HEAD"), method = "extractBlockOutline(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/state/LevelRenderState;)V", cancellable = true)
     private void primex$disableBlockOutline(Camera camera, LevelRenderState renderState, CallbackInfo ci) {
-        if (Aoba.getInstance().moduleManager.freecam.state.getValue()) ci.cancel();
+        AobaClient client = Aoba.getInstance();
+        if (client != null && client.moduleManager != null
+                && client.moduleManager.freecam.state.getValue()) ci.cancel();
     }
 
     @Inject(at = @At("HEAD"), method = "doesMobEffectBlockSky(Lnet/minecraft/client/Camera;)Z", cancellable = true)
     private void onHasBlindnessOrDarknessEffect(Camera camera, CallbackInfoReturnable<Boolean> cir) {
-        if (Aoba.getInstance().moduleManager.norender.state.getValue()) cir.setReturnValue(false);
+        AobaClient client = Aoba.getInstance();
+        if (client != null && client.moduleManager != null
+                && client.moduleManager.norender.state.getValue()) cir.setReturnValue(false);
     }
 }

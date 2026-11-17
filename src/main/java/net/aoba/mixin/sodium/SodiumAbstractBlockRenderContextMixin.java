@@ -22,7 +22,7 @@ public abstract class SodiumAbstractBlockRenderContextMixin {
 	@Inject(method = "shouldDrawSide", at = @At("HEAD"), cancellable = true)
 	private void onShouldDrawSide(Direction face, CallbackInfoReturnable<Boolean> cir) {
 		AobaClient aoba = Aoba.getInstance();
-		if (aoba == null) return;
+		if (aoba == null || aoba.moduleManager == null) return;
 		XRay xray = aoba.moduleManager.xray;
 		if (xray.state.getValue() && state != null && xray.isXRayBlock(state.getBlock())) {
 			cir.setReturnValue(true);

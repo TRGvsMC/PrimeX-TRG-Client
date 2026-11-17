@@ -22,13 +22,14 @@ import net.minecraft.client.renderer.GameRenderer;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
     @Shadow private float spinningEffectTime;
+    @Shadow private float spinningEffectSpeed;
 
     @Inject(method = "render", at = @At("HEAD"))
     private void primex$disablePortalOverlay(CallbackInfo ci) {
         AobaClient client = Aoba.getInstance();
         if (client == null || client.moduleManager == null) return;
         NoRender noRender = client.moduleManager.norender;
-        if (noRender.state.getValue() && noRender.getNoPortalOverlay()) spinningEffectTime = 0.0F;
+        if (noRender.state.getValue()) { spinningEffectTime = 0.0F; spinningEffectSpeed = 0.0F; }
     }
 
     @Inject(at = @At("HEAD"), method = "bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V", cancellable = true)

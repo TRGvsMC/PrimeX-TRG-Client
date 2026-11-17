@@ -1,6 +1,5 @@
 package net.aoba.mixin;
 
-import static net.aoba.AobaClient.MC;
 
 import java.awt.Color;
 import java.util.List;
@@ -54,6 +53,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
     }
 
     @Shadow @Nullable protected Slot hoveredSlot;
+    @Shadow protected abstract List<Component> getTooltipFromContainerItem(ItemStack stack);
     @Shadow protected int leftPos;
     @Shadow protected int topPos;
 
@@ -106,7 +106,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
                 int itemY = panelY + 7 + row * 18;
                 context.renderItem(contained, itemX, itemY);
                 if (mouseX >= itemX && mouseX < itemX + 16 && mouseY >= itemY && mouseY < itemY + 16) {
-                    context.setTooltipForNextFrame(font, getTooltipFromItem(MC, contained),
+                    context.setTooltipForNextFrame(font, getTooltipFromContainerItem(contained),
                             contained.getTooltipImage(), mouseX, mouseY);
                 }
             }

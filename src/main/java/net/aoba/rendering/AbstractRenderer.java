@@ -8,7 +8,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 
-import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.texture.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.TextureFormat;
 import com.mojang.blaze3d.buffers.GpuBuffer;
@@ -53,7 +53,7 @@ public abstract class AbstractRenderer implements AutoCloseable {
 			return;
 
 		whiteTexture = RenderSystem.getDevice().createTexture("aoba_white_pixel",
-				GpuTexture.USAGE_TEXTURE_BINDING, TextureFormat.RGBA8, 1, 1, 1, 1);
+				GpuTexture.USAGE_TEXTURE_BINDING | GpuTexture.USAGE_COPY_DST, TextureFormat.RGBA8, 1, 1, 1, 1);
 
 		whiteTextureView = RenderSystem.getDevice().createTextureView(whiteTexture);
 

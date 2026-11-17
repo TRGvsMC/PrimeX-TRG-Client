@@ -31,7 +31,7 @@ public class ShaderUniformRingBuffer implements AutoCloseable {
 			return Collections.emptyList();
 
 		int numShaders = shaders.size();
-		int alignment = RenderSystem.getDevice().getDeviceInfo().limits().minUniformOffsetAlignment();
+		int alignment = RenderSystem.getDevice().getUniformOffsetAlignment();
 		float time = (System.nanoTime() - startTimeNanos) / 1_000_000_000f;
 		float resW = Minecraft.getInstance().getWindow().getWidth() * renderScale;
 		float resH = Minecraft.getInstance().getWindow().getHeight() * renderScale;

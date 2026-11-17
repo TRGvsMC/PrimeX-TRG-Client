@@ -27,7 +27,7 @@ public enum RenderApi {
 				// Device not initialized yet. Don't cache it yet.
 				return OPENGL;
 			}
-			String backend = device.getDeviceInfo().backendName();
+			String backend = device.getBackendName();
 			cached = backend != null && backend.toLowerCase(Locale.ROOT).contains("vulkan") ? VULKAN : OPENGL;
 			AobaClient.LOGGER.info("[Aoba] Render API: " + (cached == VULKAN ? "Vulkan" : "OpenGL"));
 		}

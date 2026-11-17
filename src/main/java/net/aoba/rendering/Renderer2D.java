@@ -641,7 +641,7 @@ public class Renderer2D extends AbstractRenderer {
 			}
 		}
 
-		RenderSystem.AutoStorageIndexBuffer seqBuf = RenderSystem.getSequentialBuffer(PrimitiveTopology.TRIANGLES);
+		RenderSystem.AutoStorageIndexBuffer seqBuf = RenderSystem.getSequentialBuffer(VertexFormat.Mode.TRIANGLES);
 		GpuBuffer idxBuffer = seqBuf.getBuffer(maxIdx);
 		VertexFormat.IndexType idxType = seqBuf.type();
 
@@ -701,7 +701,7 @@ public class Renderer2D extends AbstractRenderer {
 			return;
 		destroyGameSnapshot();
 		gameSnapshotTexture = RenderSystem.getDevice().createTexture("aoba_game_snapshot",
-				GpuTexture.USAGE_TEXTURE_BINDING | GpuTexture.USAGE_RENDER_ATTACHMENT, TextureFormat.RGBA8, width, height, 1, 1);
+				GpuTexture.USAGE_TEXTURE_BINDING | GpuTexture.USAGE_COPY_DST, TextureFormat.RGBA8, width, height, 1, 1);
 		gameSnapshotTextureView = RenderSystem.getDevice().createTextureView(gameSnapshotTexture);
 		gameSnapshotWidth = width;
 		gameSnapshotHeight = height;

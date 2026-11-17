@@ -59,7 +59,6 @@
     "SoundEngineMixin",
     "TitleScreenMixin",
     "LevelChunkMixin",
-    "LevelExtractorMixin",
     "LevelRendererMixin",
     "AbstractContainerScreenMixin",
     "AbstractHorseMixin",

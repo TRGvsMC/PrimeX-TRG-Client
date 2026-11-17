@@ -1,5 +1,5 @@
 name: build
-on: [pull_request, push]
+on: [pull_request, push, workflow_dispatch]
 
 jobs:
   build:
@@ -25,6 +25,16 @@ jobs:
       - name: build (Windows)
         if: runner.os == 'Windows'
         run: .\gradlew.bat build
+      - name: verify remapped JAR contents
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          artifact="build/libs/PRIMEX-TRG-CLIENT-1.21.11.jar"
+          test -s "$artifact"
+          jar tf "$artifact" > /tmp/primex-jar-contents.txt
+          for entry in fabric.mod.json aoba.mixins.json aoba-sodium.mixins.json aoba.accesswidener net/aoba/mixin/sodium/SodiumMixinPlugin.class net/aoba/rendering/Renderer2D.class net/aoba/rendering/Renderer3D.class; do
+            grep -Fxq "$entry" /tmp/primex-jar-contents.txt || { echo "Missing JAR entry: $entry"; exit 1; }
+          done
       - name: capture remapped client artifact
         if: ${{ runner.os == 'Linux' }}
         uses: actions/upload-artifact@v4.6.0

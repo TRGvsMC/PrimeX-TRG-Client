@@ -102,13 +102,13 @@ public class MainMenuScreen extends Screen {
 			addRenderableWidget(modsButton);
 		} catch (ClassNotFoundException e) {}
 
-		AobaImageButtonWidget creditsButton = new AobaImageButtonWidget(width - 20 - 10, height - 20 - 10, 20, 20,
-				TextureBank.aoba);
+		AobaButtonWidget creditsButton = new AobaButtonWidget(width - 184, height - 34, 82, 22,
+				Component.literal("Credits"));
 		creditsButton.setPressAction(b -> MC.gui.setScreen(new AobaCreditsScreen()));
 		addRenderableWidget(creditsButton);
 
-		AobaImageButtonWidget discordButton = new AobaImageButtonWidget(width - 60, height - 30, 20, 20,
-				TextureBank.discord);
+		AobaButtonWidget discordButton = new AobaButtonWidget(width - 94, height - 34, 82, 22,
+				Component.literal("Discord"));
 		discordButton.setPressAction(b -> Blaze3D.openUri(URI.create("https://discord.gg/CDa4etPFtk")));
 		addRenderableWidget(discordButton);
 
@@ -128,7 +128,8 @@ public class MainMenuScreen extends Screen {
 		int productWidth = font.width(product);
 		drawContext.text(font, brand, (width - brandWidth) / 2, startY - LOGO_HEIGHT - 12, 0xFFF2EEFF);
 		drawContext.text(font, product, (width - productWidth) / 2, startY - LOGO_HEIGHT + 2, 0xFFB66CFF);
-		drawContext.text(font, "PRIMEX TRG CLIENT", 2, height - 10, 0xFFB66CFF);
+		drawContext.fill(width / 2 - 58, startY - 5, width / 2 + 58, startY - 3, 0xFFB66CFF);
+		drawContext.text(font, "PRIMEX TRG CLIENT", 12, height - 12, 0xFFB66CFF);
 
 		if (AobaClient.addons.isEmpty()) {
 			String noAddonsText = "No addons loaded";
@@ -161,6 +162,7 @@ public class MainMenuScreen extends Screen {
 	@Override
 	public void extractBackground(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
 		extractPanorama(graphics, a);
+		graphics.fill(0, 0, width, height, 0xA6080912);
 	}
 
 	@Override

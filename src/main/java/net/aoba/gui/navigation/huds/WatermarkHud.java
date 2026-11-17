@@ -18,8 +18,8 @@ import net.aoba.rendering.Renderer2D;
 public class WatermarkHud extends HudWindow {
 
 	public WatermarkHud(int x, int y) {
-		super("WatermarkHud", x, y, 50, 24);
-		setProperty(UIElement.MinWidthProperty, 50f);
+		super("WatermarkHud", x, y, 132, 24);
+		setProperty(UIElement.MinWidthProperty, 132f);
 		setProperty(UIElement.MinHeightProperty, 20f);
 		setProperty(UIElement.MaxHeightProperty, 20f);
 		resizeMode = ResizeMode.None;
@@ -30,7 +30,7 @@ public class WatermarkHud extends HudWindow {
 		boolean isVisible = getProperty(UIElement.IsVisibleProperty);
 		if (isVisible) {
 			Rectangle pos = position.getValue();
-			String watermarkText = "Aoba Client";
+			String watermarkText = "PRIMEX TRG CLIENT";
 			renderer.drawString(watermarkText, pos.x(), pos.y(),
 					GuiManager.foregroundColor.getValue(), GuiManager.fontSetting.getValue().getRenderer());
 		}

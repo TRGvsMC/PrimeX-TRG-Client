@@ -54,11 +54,8 @@ public class AobaCreditsScreen extends Screen {
 		int endY = -totalHeight;
 
 		int baseY = (int) (startY + (endY - startY) * animationProgress);
-		int logoHeight = 70;
 		int logoY = baseY + 20;
-
-		graphics.blit(RenderPipelines.GUI_TEXTURED, TextureBank.mainmenu_logo, (width - 185) / 2, logoY - 100,
-				0, 0, 185, logoHeight, 185, 70, 185, 70);
+		graphics.centeredText(font, "PRIMEX TRG CLIENT", width / 2, logoY - 100, 0xFFB66CFF);
 
 		for (int i = 0; i < CONTRIBUTORS.size(); i++) {
 			int textWidth = font.width(CONTRIBUTORS.get(i));
@@ -84,7 +81,7 @@ public class AobaCreditsScreen extends Screen {
 
 	private void drawContributorName(GuiGraphicsExtractor context, String contributor, int x, int y, float alpha) {
 		Aoba.getInstance().render2D.drawString(contributor, (float) x, (float) y,
-				Shader.solid(Colors.White),
+				Shader.solid(Colors.White.withAlpha((int) (alpha * 255))),
 				GuiManager.fontSetting.getValue().getRenderer());
 	}
 

@@ -55,7 +55,6 @@
     "JoinMultiplayerScreenMixin",
     "ParticleEngineMixin",
     "PlayerMixin",
-    "ScreenMixin",
     "OptionInstanceMixin",
     "SoundEngineMixin",
     "TitleScreenMixin",
@@ -65,7 +64,7 @@
     "AbstractContainerScreenMixin",
     "AbstractHorseMixin",
     "ClientChunkCacheMixin",
-	"AnimalMixin"
+    "AnimalMixin"
   ],
   "injectors": {
     "defaultRequire": 1

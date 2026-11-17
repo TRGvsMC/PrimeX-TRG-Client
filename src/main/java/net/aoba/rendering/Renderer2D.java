@@ -12,6 +12,7 @@ import static net.aoba.AobaClient.MC;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -25,18 +26,18 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.renderpearl.api.GpuFormat;
-import com.mojang.renderpearl.api.buffers.GpuBuffer;
-import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
-import com.mojang.renderpearl.api.commands.CommandEncoder;
-import com.mojang.renderpearl.api.commands.RenderPass;
-import com.mojang.renderpearl.api.pipeline.IndexType;
-import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
-import com.mojang.renderpearl.api.textures.FilterMode;
-import com.mojang.renderpearl.api.textures.GpuSampler;
-import com.mojang.renderpearl.api.textures.GpuTexture;
-import com.mojang.renderpearl.api.textures.GpuTextureView;
-import com.mojang.renderpearl.api.vertex.VertexFormat;
+import com.mojang.blaze3d.textures.TextureFormat;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.systems.CommandEncoder;
+import com.mojang.blaze3d.systems.RenderPass;
+
+
+import com.mojang.blaze3d.textures.FilterMode;
+import net.minecraft.client.gl.GpuSampler;
+import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.aoba.Aoba;
 import net.aoba.gui.types.Rectangle;
 import net.aoba.rendering.msaa.IAAHandler;
@@ -44,37 +45,37 @@ import net.aoba.rendering.msaa.SSAAHandler;
 import net.aoba.rendering.shaders.Shader;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.font.TextRenderable;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.renderer.MappableRingBuffer;
-import net.minecraft.client.renderer.Projection;
-import net.minecraft.client.renderer.ProjectionMatrixBuffer;
+import net.minecraft.client.gl.MappableRingBuffer;
+import net.minecraft.client.renderer.CachedOrthoCachedOrthoProjectionMatrixBuffer;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 public class Renderer2D extends AbstractRenderer {
-	private GuiGraphicsExtractor drawContext;
+	private GuiGraphics drawContext;
+	private final ArrayDeque<ScreenRectangle> scissorStack = new ArrayDeque<>();
 	private DeltaTracker deltaTracker;
 	private final ArrayList<Element> elements = new ArrayList<>();
 	private final ByteBufferBuilder byteBufferBuilder = new ByteBufferBuilder(131072);
 	private @Nullable MappableRingBuffer vertexBuffer;
-	private @Nullable ProjectionMatrixBuffer projectionBuffer;
+	private @Nullable CachedOrthoProjectionMatrixBuffer projectionBuffer;
 	private static final int MSAA_SAMPLES = 4;
 	private final IAAHandler msaaHandler = new SSAAHandler();
 	private @Nullable GpuTexture gameSnapshotTexture;
 	private @Nullable GpuTextureView gameSnapshotTextureView;
 	private int gameSnapshotWidth, gameSnapshotHeight;
-	private final Projection guiProjection = new Projection();
 
-	public void beginFrame(GuiGraphicsExtractor drawContext, DeltaTracker deltaTracker) {
+	public void beginFrame(GuiGraphics drawContext, DeltaTracker deltaTracker) {
 		this.drawContext = drawContext;
 		this.deltaTracker = deltaTracker;
+		this.scissorStack.clear();
 	}
 
-	public GuiGraphicsExtractor getDrawContext() {
+	public GuiGraphics getDrawContext() {
 		return drawContext;
 	}
 
@@ -104,7 +105,7 @@ public class Renderer2D extends AbstractRenderer {
 
 	private void submitShader(Shader shader, float[] vertices, float[] uvs, int vertexCount) {
 		Matrix3x2fc pose = new Matrix3x2f(drawContext.pose());
-		ScreenRectangle scissor = drawContext.scissorStack.peek();
+		ScreenRectangle scissor = scissorStack.peek();
 		submitElement(pose, vertices, uvs, vertexCount, scissor, shader);
 	}
 
@@ -313,7 +314,7 @@ public class Renderer2D extends AbstractRenderer {
 	 * Draws an item at the given position.
 	 */
 	public void drawItem(ItemStack stack, float x, float y) {
-		drawContext.item(stack, (int) x, (int) y);
+		drawContext.renderItem(stack, (int) x, (int) y);
 	}
 
 	/**
@@ -455,11 +456,20 @@ public class Renderer2D extends AbstractRenderer {
 		int y1 = (int) clip.y();
 		int x2 = (int) (clip.x() + clip.width());
 		int y2 = (int) (clip.y() + clip.height());
-		drawContext.enableScissor(x1, y1, x2, y2);
+		ScreenRectangle next = new ScreenRectangle(x1, y1, Math.max(0, x2 - x1), Math.max(0, y2 - y1));
+		if (!scissorStack.isEmpty()) next = scissorStack.peek().intersection(next);
+		scissorStack.push(next);
+		drawContext.enableScissor(next.left(), next.top(), next.right(), next.bottom());
 	}
 
 	public void endClip() {
-		drawContext.disableScissor();
+		if (!scissorStack.isEmpty()) scissorStack.pop();
+		if (scissorStack.isEmpty()) {
+			drawContext.disableScissor();
+		} else {
+			ScreenRectangle parent = scissorStack.peek();
+			drawContext.enableScissor(parent.left(), parent.top(), parent.right(), parent.bottom());
+		}
 	}
 
 	public static int getStringWidth(String text, Font font) {
@@ -536,7 +546,7 @@ public class Renderer2D extends AbstractRenderer {
 		List<Batch> batches = new ArrayList<>();
 		RenderState currentState = elements.get(0).state;
 
-		BufferBuilder builder = new BufferBuilder(byteBufferBuilder, PrimitiveTopology.TRIANGLES,
+		BufferBuilder builder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.TRIANGLES,
 				DefaultVertexFormat.POSITION_TEX);
 
 		for (Element elem : elements) {
@@ -585,8 +595,8 @@ public class Renderer2D extends AbstractRenderer {
 			ByteBuffer vertData = batch.mesh.vertexBuffer();
 			int size = vertData.remaining();
 
-			GpuBuffer gpuBuf = vertexBuffer.currentBuffer();
-			try (GpuBufferSlice.MappedView mapped = gpuBuf.map(offset, size, false, true)) {
+			GpuBuffer gpuBuf = vertexBuffer.getBlocking();
+			try (GpuBuffer.MappedView mapped = encoder.mapBuffer(gpuBuf.slice(offset, size), false, true)) {
 				MemoryUtil.memCopy(vertData, mapped.data());
 			}
 
@@ -620,8 +630,7 @@ public class Renderer2D extends AbstractRenderer {
 
 		float sw = (float) screenW / window.getGuiScale();
 		float sh = (float) screenH / window.getGuiScale();
-		this.guiProjection.setupOrtho(1000.0F, 11000.0F, sw, sh, true);
-		RenderSystem.setProjectionMatrix(projectionBuffer.getBuffer(guiProjection), ProjectionType.ORTHOGRAPHIC);
+		RenderSystem.setProjectionMatrix(projectionBuffer.getBuffer(sw, sh), ProjectionType.ORTHOGRAPHIC);
 
 		GpuBufferSlice transforms = uploadGuiTransform();
 
@@ -634,7 +643,7 @@ public class Renderer2D extends AbstractRenderer {
 
 		RenderSystem.AutoStorageIndexBuffer seqBuf = RenderSystem.getSequentialBuffer(PrimitiveTopology.TRIANGLES);
 		GpuBuffer idxBuffer = seqBuf.getBuffer(maxIdx);
-		IndexType idxType = seqBuf.type();
+		VertexFormat.IndexType idxType = seqBuf.type();
 
 		msaaHandler.prepare(screenW, screenH, MSAA_SAMPLES);
 
@@ -643,8 +652,8 @@ public class Renderer2D extends AbstractRenderer {
 			pass.setUniform("DynamicTransforms", transforms);
 
 			for (DrawCmd draw : draws) {
-				pass.setPipeline(RenderSystem.getCompiledPipeline(draw.shader.pipeline()));
-				pass.setVertexBuffer(0, draw.vertexBuffer.slice());
+				pass.setPipeline(draw.shader.pipeline());
+				pass.setVertexBuffer(0, draw.vertexBuffer);
 
 				if (draw.scissor != null) {
 					enableScissor(draw.scissor, pass, window);
@@ -653,17 +662,17 @@ public class Renderer2D extends AbstractRenderer {
 				}
 
 				if (draw.shader.needsGameFramebuffer() && gameSnapshotTextureView != null) {
-					pass.setUniform("Sampler0", gameSnapshotTextureView,
-							RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
+					pass.bindTexture("Sampler0", gameSnapshotTextureView,
+							RenderSystem.getSamplerCache().get(FilterMode.LINEAR));
 				} else if (draw.textureView != null) {
-					pass.setUniform("Sampler0", draw.textureView, draw.sampler);
+					pass.bindTexture("Sampler0", draw.textureView, draw.sampler);
 				} else {
-					pass.setUniform("Sampler0", getWhiteTextureView(), getWhiteSampler());
+					pass.bindTexture("Sampler0", getWhiteTextureView(), getWhiteSampler());
 				}
 
 				pass.setUniform("AobaShaderParams", draw.shaderParamsSlice);
 				pass.setIndexBuffer(idxBuffer, idxType);
-				pass.drawIndexed(draw.indexCount, 1, 0, draw.baseVertex, 0);
+				pass.drawIndexed(draw.baseVertex, 0, draw.indexCount, 1);
 			}
 		}
 
@@ -692,7 +701,7 @@ public class Renderer2D extends AbstractRenderer {
 			return;
 		destroyGameSnapshot();
 		gameSnapshotTexture = RenderSystem.getDevice().createTexture("aoba_game_snapshot",
-				GpuTexture.USAGE_TEXTURE_BINDING | GpuTexture.USAGE_COPY_DST, GpuFormat.RGBA8_UNORM, width, height, 1, 1);
+				GpuTexture.USAGE_TEXTURE_BINDING | GpuTexture.USAGE_RENDER_ATTACHMENT, TextureFormat.RGBA8, width, height, 1, 1);
 		gameSnapshotTextureView = RenderSystem.getDevice().createTextureView(gameSnapshotTexture);
 		gameSnapshotWidth = width;
 		gameSnapshotHeight = height;

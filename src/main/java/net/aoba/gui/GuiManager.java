@@ -91,7 +91,7 @@ import net.aoba.rendering.shaders.Shader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class GuiManager implements KeyDownListener, TickListener, Render2DListener, MouseClickListener,
 		MouseMoveListener, MouseScrollListener {
@@ -468,7 +468,7 @@ public class GuiManager implements KeyDownListener, TickListener, Render2DListen
 	@Override
 	public void onRender(Render2DEvent event) {
 		Renderer2D renderer = event.getRenderer();
-		GuiGraphicsExtractor drawContext = renderer.getDrawContext();
+		GuiGraphics drawContext = renderer.getDrawContext();
 		float tickDelta = renderer.getDeltaTracker().getGameTimeDeltaPartialTick(false);
 
 		Matrix3x2fStack matrixStack = drawContext.pose();

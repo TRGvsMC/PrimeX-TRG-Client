@@ -10,7 +10,7 @@ package net.aoba.gui.screens.alts;
 
 import net.aoba.Aoba;
 import net.aoba.managers.altmanager.Alt;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
@@ -46,7 +46,7 @@ public class DirectLoginAltScreen extends Screen {
 				.bounds(width / 2 - 100, height / 2 + 24, 200, 20).build();
 		addRenderableWidget(buttonLoginAlt);
 
-		addRenderableWidget(Button.builder(Component.nullToEmpty("Cancel"), b -> minecraft.gui.setScreen(parent))
+		addRenderableWidget(Button.builder(Component.nullToEmpty("Cancel"), b -> minecraft.setScreen(parent))
 				.bounds(width / 2 - 100, height / 2 + 46, 200, 20).build());
 	}
 
@@ -65,10 +65,10 @@ public class DirectLoginAltScreen extends Screen {
 	}
 
 	@Override
-	public void extractRenderState(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
-		super.extractRenderState(graphics, mouseX, mouseY, a);
-		graphics.centeredText(font, title.getString(), width / 2, 20, 0xFFFFFFFF);
-		graphics.text(font, "Enter Username/Email", width / 2 - 100, height / 2 - 60,
+	public void render(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
+		super.render(graphics, mouseX, mouseY, a);
+		graphics.drawCenteredString(font, title.getString(), width / 2, 20, 0xFFFFFFFF);
+		graphics.drawString(font, "Enter Username/Email", width / 2 - 100, height / 2 - 60,
 				0xFFFFFFFF);
 		textFieldAltUsername.extractRenderState(graphics, mouseX, mouseY, a);
 		if (didLoginError) {

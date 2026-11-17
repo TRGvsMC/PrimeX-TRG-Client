@@ -14,7 +14,7 @@ import net.aoba.Aoba;
 import net.aoba.gui.screens.AobaPanorama;
 import net.aoba.managers.altmanager.Alt;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
@@ -43,7 +43,7 @@ public class AltScreen extends Screen {
 		layout.addToContents(altListSelector);
 
 		LinearLayout topRow = LinearLayout.horizontal().spacing(4);
-		topRow.addChild(Button.builder(Component.nullToEmpty("Direct Login"), b -> minecraft.gui.setScreen(new DirectLoginAltScreen(this)))
+		topRow.addChild(Button.builder(Component.nullToEmpty("Direct Login"), b -> minecraft.setScreen(new DirectLoginAltScreen(this)))
 				.width(100).build());
 		topRow.addChild(Button.builder(Component.nullToEmpty("Add Alt"), b -> minecraft.gui.setScreen(new AddAltScreen(this)))
 				.width(100).build());
@@ -87,9 +87,9 @@ public class AltScreen extends Screen {
 	}
 
     @Override
-    public void extractRenderState(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
-        super.extractRenderState(graphics, mouseX, mouseY, a);
-		graphics.centeredText(font,
+    public void render(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
+        super.render(graphics, mouseX, mouseY, a);
+		graphics.drawCenteredString(font,
 				"Currently Logged Into: " + Minecraft.getInstance().getUser().getName(), width / 2, 20,
 				0xFFFFFFFF);
     }
@@ -146,7 +146,7 @@ public class AltScreen extends Screen {
 	@Override
 	protected void extractPanorama(final GuiGraphicsExtractor graphics, final float a){
 		try {
-			AOBA_ROTATING_PANORAMA_RENDERER.extractRenderState(graphics, this.width, this.height, true);
+			AOBA_ROTATING_PANORAMA_RENDERER.render(graphics, this.width, this.height, true);
 		} catch (IllegalStateException e) {
 		}
 	}

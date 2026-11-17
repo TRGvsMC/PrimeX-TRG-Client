@@ -14,13 +14,14 @@ import net.aoba.api.IAddon;
 import net.aoba.gui.screens.AobaPanorama;
 import net.aoba.gui.screens.addons.AddonSelectionList.NormalEntry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
-import com.mojang.blaze3d.Blaze3D;
+import net.minecraft.util.Util;
+import net.minecraft.client.renderer.RenderPipelines;
 
 public class AddonScreen extends Screen {
 	protected static final AobaPanorama AOBA_ROTATING_PANORAMA_RENDERER = new AobaPanorama();
@@ -45,10 +46,10 @@ public class AddonScreen extends Screen {
 		// Left Side
 		Path addonsPath = Minecraft.getInstance().getResourcePackDirectory().getParent().resolve("mods");
 		addRenderableWidget(Button
-				.builder(Component.nullToEmpty("Open Addons Folder"), button -> Blaze3D.openPath(addonsPath))
+				.builder(Component.nullToEmpty("Open Addons Folder"), button -> Util.getPlatform().openUri(addonsPath.toUri()))
 				.bounds(16, height - 40, 120, 20).build());
 
-		addRenderableWidget(Button.builder(Component.nullToEmpty("Done"), b -> minecraft.gui.setScreen(parentScreen))
+		addRenderableWidget(Button.builder(Component.nullToEmpty("Done"), b -> minecraft.setScreen(parentScreen))
 				.bounds(146, height - 40, 120, 20).build());
 
 		addonListSelector = new AddonSelectionList(this, minecraft, 250, height, 16, 48);
@@ -75,9 +76,9 @@ public class AddonScreen extends Screen {
 	}
 
 	@Override
-	public void extractRenderState(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
-		super.extractRenderState(graphics, mouseX, mouseY, a);
-		graphics.centeredText(font, "Addons", 145, 16, 0xFFFFFFFF);
+	public void render(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
+		super.render(graphics, mouseX, mouseY, a);
+		graphics.drawCenteredString(font, "Addons", 145, 16, 0xFFFFFFFF);
 
 		// Draw Addon Information
 		if (selectedAddon != null) {
@@ -88,9 +89,9 @@ public class AddonScreen extends Screen {
 				graphics.fill(282, 60, 330, 108, 0xFF000000);
 
 				// Draw the texture
-				graphics.blit(entry.getIcon(), 282, 60, 48, 48, 0f, 0f, 1f, 1f);
+				graphics.blit(RenderPipelines.GUI_TEXTURED, entry.getIcon(), 282, 60, 0.0F, 0.0F, 48, 48, 48, 48);
 			}
-			graphics.text(font, selectedAddon.getName(), 338, 68, 0xFFFFFFFF);
+			graphics.drawString(font, selectedAddon.getName(), 338, 68, 0xFFFFFFFF);
 			graphics.text(font, selectedAddon.getVersion(), 338, 80, 0xFFFFFFFF);
 			graphics.text(font, "By " + selectedAddon.getAuthor(), 338, 92, 0xFFFFFFFF);
 		}
@@ -114,7 +115,7 @@ public class AddonScreen extends Screen {
 	@Override
 	protected void extractPanorama(final GuiGraphicsExtractor graphics, final float a){
 		try {
-			AOBA_ROTATING_PANORAMA_RENDERER.extractRenderState(graphics, this.width, this.height, true);
+			AOBA_ROTATING_PANORAMA_RENDERER.render(graphics, this.width, this.height, true);
 		} catch (IllegalStateException e) {
 		}
 	}

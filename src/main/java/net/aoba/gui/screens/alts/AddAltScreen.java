@@ -10,7 +10,7 @@ package net.aoba.gui.screens.alts;
 
 import net.aoba.Aoba;
 import net.aoba.managers.altmanager.Alt;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
@@ -50,9 +50,9 @@ public class AddAltScreen extends Screen {
     }
 
     @Override
-    public void extractRenderState(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
-        super.extractRenderState(graphics, mouseX, mouseY, a);
-        graphics.centeredText(font, "Add Alternate Account", width / 2, 20, 0xFFFFFFFF);
+    public void render(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
+        super.render(graphics, mouseX, mouseY, a);
+        graphics.drawCenteredString(font, "Add Alternate Account", width / 2, 20, 0xFFFFFFFF);
         graphics.centeredText(font, "Username:", width / 2 - 75, height / 2 - 50, 0xFFFFFFFF);
     }
 
@@ -67,6 +67,6 @@ public class AddAltScreen extends Screen {
     }
 
     public void onButtonCancelPressed() {
-        minecraft.gui.setScreen(parent);
+        minecraft.setScreen(parent);
     }
 }

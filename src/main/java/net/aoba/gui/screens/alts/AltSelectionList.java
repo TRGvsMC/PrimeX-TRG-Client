@@ -22,9 +22,9 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.client.gui.components.PlayerFaceExtractor;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
@@ -107,7 +107,7 @@ public class AltSelectionList extends ObjectSelectionList<AltSelectionList.Entry
 		}
 
 		private void drawHead(GuiGraphicsExtractor drawContext, int x, int y) {
-			PlayerFaceExtractor.extractRenderState(drawContext, entry.getSkin(), x, y, 24);
+			PlayerFaceRenderer.draw(drawContext, entry.getSkin(), x, y, 24);
 		}
 
 		@Override
@@ -126,7 +126,7 @@ public class AltSelectionList extends ObjectSelectionList<AltSelectionList.Entry
 		}
 
 		@Override
-		public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
+		public void renderContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
 			int x = getX();
 			int y = getY();
 
@@ -141,7 +141,7 @@ public class AltSelectionList extends ObjectSelectionList<AltSelectionList.Entry
 
 			// Draws the strings onto the screen.
 			Font textRenderer = mc.font;
-			graphics.text(textRenderer, "Username: " + alt.getEmail(), (x + 32 + 3), (y + 2),
+			graphics.drawString(textRenderer, "Username: " + alt.getEmail(), (x + 32 + 3), (y + 2),
 					0xFFFFFFFF);
 			graphics.text(textRenderer, description, (x + 32 + 3), (y + 12),
 					alt.isCracked() ? 0xFFFF0000 : 0xFF00FF00, true);

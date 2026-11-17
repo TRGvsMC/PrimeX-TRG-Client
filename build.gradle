@@ -82,7 +82,7 @@ java {
 }
 
 jar {
-    archiveFileName = "PRIMEX-TRG-CLIENT-${project.minecraft_version}.jar"
+    // Loom marks this as the development (named-mappings) jar; remapJar is the distributable artifact.
     from("LICENSE") {
         rename { "${it}_${project.base.archivesName.get()}" }
     }

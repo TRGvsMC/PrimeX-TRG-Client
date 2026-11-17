@@ -53,17 +53,17 @@ public class ShaderManager {
 			String jsonPath = BUILTIN_SHADER_PATH + "aoba_" + id + ".json";
 			try (InputStream is = ShaderManager.class.getResourceAsStream(jsonPath)) {
 				if (is == null) {
-					LOGGER.warn("[Aoba] Built-in shader JSON not found: {}", jsonPath);
+					LOGGER.warn("[PRIMEX TRG] Built-in shader JSON not found: {}", jsonPath);
 					continue;
 				}
 				JsonObject json = JsonParser.parseReader(new InputStreamReader(is, StandardCharsets.UTF_8)).getAsJsonObject();
 				Shader shader = parseShader(id, json);
 				if (shader != null) {
 					shaders.put(id, shader);
-					LOGGER.info("[Aoba] Loaded built-in shader: {}", shader.name());
+					LOGGER.info("[PRIMEX TRG] Loaded built-in shader: {}", shader.name());
 				}
 			} catch (Exception e) {
-				LOGGER.error("[Aoba] Failed to load built-in shader: {}", id, e);
+				LOGGER.error("[PRIMEX TRG] Failed to load built-in shader: {}", id, e);
 			}
 		}
 
@@ -85,7 +85,7 @@ public class ShaderManager {
 				String id = fileName.substring(0, fileName.length() - 5);
 
 				if (shaders.containsKey(id)) {
-					LOGGER.warn("[Aoba] User shader '{}' conflicts with existing shader, skipping", id);
+					LOGGER.warn("[PRIMEX TRG] User shader '{}' conflicts with existing shader, skipping", id);
 					continue;
 				}
 
@@ -95,14 +95,14 @@ public class ShaderManager {
 					Shader shader = parseShader(id, json);
 					if (shader != null) {
 						shaders.put(id, shader);
-						LOGGER.info("[Aoba] Loaded user shader: {}", shader.name());
+						LOGGER.info("[PRIMEX TRG] Loaded user shader: {}", shader.name());
 					}
 				} catch (Exception e) {
-					LOGGER.error("[Aoba] Failed to load user shader: {}", id, e);
+					LOGGER.error("[PRIMEX TRG] Failed to load user shader: {}", id, e);
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("[Aoba] Failed to scan user shaders directory", e);
+			LOGGER.error("[PRIMEX TRG] Failed to scan user shaders directory", e);
 		}
 	}
 
@@ -122,7 +122,7 @@ public class ShaderManager {
 			try {
 				backend = RenderApi.valueOf(json.get("backend").getAsString().toUpperCase());
 			} catch (IllegalArgumentException e) {
-				LOGGER.warn("[Aoba] Unknown backend '{}' for shader '{}', defaulting to OPENGL",
+				LOGGER.warn("[PRIMEX TRG] Unknown backend '{}' for shader '{}', defaulting to OPENGL",
 						json.get("backend").getAsString(), id);
 			}
 		}
@@ -172,7 +172,7 @@ public class ShaderManager {
 			return ShaderUniform.ofFramebuffer(name);
 		}
 
-		LOGGER.warn("[Aoba] Unknown param type '{}' for param '{}'", type, name);
+		LOGGER.warn("[PRIMEX TRG] Unknown param type '{}' for param '{}'", type, name);
 		return null;
 	}
 

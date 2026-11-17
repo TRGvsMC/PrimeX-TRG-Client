@@ -11,7 +11,7 @@ package net.aoba;
 import net.fabricmc.api.ModInitializer;
 
 /**
- * Initializes and provides access to the Aoba Client singleton.
+ * Initializes and provides access to the PRIMEX TRG CLIENT singleton.
  */
 public class Aoba implements ModInitializer {
 	private static AobaClient INSTANCE;
@@ -23,7 +23,7 @@ public class Aoba implements ModInitializer {
 	}
 
 	/**
-	 * @return Singleton instance of AobaClient.
+	 * @return PRIMEX TRG CLIENT singleton instance.
 	 */
 	public static AobaClient getInstance() {
 		return INSTANCE;

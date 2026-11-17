@@ -17,7 +17,7 @@
  */
 
 /**
- * A class to represent Aoba Client and all of its functions.
+ * The PRIMEX TRG CLIENT runtime and subsystem coordinator.
  */
 package net.aoba;
 
@@ -82,7 +82,7 @@ public class AobaClient {
 	public static Logger LOGGER;
 
 	/**
-	 * Initializes Aoba Client and creates sub-systems.
+	 * Initializes PRIMEX TRG CLIENT and creates its subsystems.
 	 */
 	public void Initialize() {
 		// Gets instance of Minecraft
@@ -95,19 +95,19 @@ public class AobaClient {
 	 * Initializes systems and loads any assets.
 	 */
 	public void loadAssets() {
-		LOGGER.info("[Aoba] Starting Client");
+		LOGGER.info("[PRIMEX TRG] Starting Client");
 		eventManager = new EventManager();
 
 		// Register any addons.
-		LogUtils.getLogger().info("[Aoba] Starting addon initialization");
+		LogUtils.getLogger().info("[PRIMEX TRG] Starting addon initialization");
 		for (EntrypointContainer<IAddon> entrypoint : FabricLoader.getInstance().getEntrypointContainers("aoba",
 				IAddon.class)) {
 			IAddon addon = entrypoint.getEntrypoint();
 
 			try {
-				LOGGER.info("[Aoba] Initializing addon: " + addon.getName());
+				LOGGER.info("[PRIMEX TRG] Initializing addon: " + addon.getName());
 				addon.onInitialize();
-				LOGGER.info("[Aoba] Addon initialized: " + addon.getName());
+				LOGGER.info("[PRIMEX TRG] Addon initialized: " + addon.getName());
 			} catch (Throwable e) {
 				LOGGER.error("Error initializing addon: " + addon.getName(), e);
 			}
@@ -115,73 +115,73 @@ public class AobaClient {
 			addons.add(addon);
 		}
 
-		LOGGER.info("[Aoba] Reading Settings");
+		LOGGER.info("[PRIMEX TRG] Reading Settings");
 		settingManager = new SettingManager();
 
-		LOGGER.info("[Aoba] Reading Friends List");
+		LOGGER.info("[PRIMEX TRG] Reading Friends List");
 		friendsList = new FriendsList();
 
-		LOGGER.info("[Aoba] Initializing Commands");
+		LOGGER.info("[PRIMEX TRG] Initializing Commands");
 		commandManager = new CommandManager(addons);
 
-		LOGGER.info("[Aoba] Initializing Font Manager");
+		LOGGER.info("[PRIMEX TRG] Initializing Font Manager");
 		fontManager = new FontManager();
 		fontManager.Initialize();
 
-		LOGGER.info("[Aoba] Initializing Combat Manager");
+		LOGGER.info("[PRIMEX TRG] Initializing Combat Manager");
 		combatManager = new CombatManager();
 
-		LOGGER.info("[Aoba] Initializing Entity Manager");
+		LOGGER.info("[PRIMEX TRG] Initializing Entity Manager");
 		entityManager = new EntityManager();
 
-		LOGGER.info("[Aoba] Initializing Macro Manager");
+		LOGGER.info("[PRIMEX TRG] Initializing Macro Manager");
 		macroManager = new MacroManager();
 
-		LOGGER.info("[Aoba] Initializing Shader Effects");
+		LOGGER.info("[PRIMEX TRG] Initializing Shader Effects");
 		shaderManager = new ShaderManager();
 		
-		LOGGER.info("[Aoba] Initializing Renderers");
+		LOGGER.info("[PRIMEX TRG] Initializing Renderers");
 		compositor = new Compositor();
 		render2D = new Renderer2D();
 		render3D = new Renderer3D();
 
-		LOGGER.info("[Aoba] Initializing Rotation Manager");
+		LOGGER.info("[PRIMEX TRG] Initializing Rotation Manager");
 		rotationManager = new RotationManager();
 		
-		LOGGER.info("[Aoba] Initializing Modules");
+		LOGGER.info("[PRIMEX TRG] Initializing Modules");
 		moduleManager = new ModuleManager(addons);
 		
-		LOGGER.info("[Aoba] Initializing GUI");
+		LOGGER.info("[PRIMEX TRG] Initializing GUI");
 		guiManager = new GuiManager();
 		guiManager.Initialize();
 
-		LOGGER.info("[Aoba] Loading Settings");
+		LOGGER.info("[PRIMEX TRG] Loading Settings");
 		SettingManager.loadGlobalSettings();
 		SettingManager.loadSettings();
 
-		LOGGER.info("[Aoba] Initializing Alt Manager");
+		LOGGER.info("[PRIMEX TRG] Initializing Alt Manager");
 		altManager = new AltManager();
 
-		LOGGER.info("[Aoba] Initializing Proxy Manager");
+		LOGGER.info("[PRIMEX TRG] Initializing Proxy Manager");
 		proxyManager = new ProxyManager();
 
-		LOGGER.info("[Aoba] Registering Shutdown Hook");
+		LOGGER.info("[PRIMEX TRG] Registering Shutdown Hook");
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try {
 				endClient();
 			} catch (Exception e) {
-				LOGGER.error("[Aoba] Error during shutdown: ", e);
+				LOGGER.error("[PRIMEX TRG] Error during shutdown: ", e);
 			}
 		}));
 
-		LOGGER.info("[Aoba] PRIMEX TRG CLIENT initialized and ready to play!");
+		LOGGER.info("[PRIMEX TRG] PRIMEX TRG CLIENT initialized and ready to play!");
 	}
 
 	/**
 	 * Called when the client is shutting down. Saves persistent data.
 	 */
 	public void endClient() {
-		LOGGER.info("[Aoba] Shutting down");
+		LOGGER.info("[PRIMEX TRG] Shutting down");
 		try {
 			SettingManager.saveSettings();
 			altManager.saveAlts();
@@ -189,7 +189,7 @@ public class AobaClient {
 			macroManager.save();
 			moduleManager.modules.forEach(Module::onDisable);
 		} catch (Exception e) {
-			LOGGER.error("[Aoba] Error saving data", e);
+			LOGGER.error("[PRIMEX TRG] Error saving data", e);
 		}
 
 		try {
@@ -198,7 +198,7 @@ public class AobaClient {
 			if (compositor != null) compositor.close();
 			AbstractRenderer.closeSharedResources();
 		} catch (Exception e) {
-			LOGGER.error("[Aoba] Error releasing renderer resources", e);
+			LOGGER.error("[PRIMEX TRG] Error releasing renderer resources", e);
 		}
 	}
 }

@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import net.aoba.Aoba;
+
 import net.aoba.AobaClient;
 import net.aoba.module.modules.movement.Freecam;
 import net.aoba.module.modules.render.NoRender;
@@ -17,54 +17,47 @@ import net.minecraft.world.level.material.FogType;
 
 @Mixin(Camera.class)
 public class CameraMixin {
-	@Shadow
-	private boolean initialized;
+    @Shadow
+    private Entity entity;
 
-	@Shadow
-	private Entity entity;
+    /**
+     * Camera#setEntity and alignWithEntity were folded into setup(Level, Entity,
+     * boolean, boolean, float) in 1.21.11. Keep the existing camera transform while
+     * Freecam is active so the module can drive position and rotation through ICamera.
+     */
+    @Inject(
+            method = "setup(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/Entity;ZZF)V",
+            at = @At("HEAD"),
+            cancellable = true)
+    private void primex$preserveFreecamCamera(Level level, Entity focusedEntity, boolean detached,
+            boolean mirrored, float partialTick, CallbackInfo ci) {
+        AobaClient client = AobaClient.getInstance();
+        if (client != null && client.moduleManager != null
+                && client.moduleManager.freecam.state.getValue() && this.entity != null) {
+            ci.cancel();
+        }
+    }
 
-	@Shadow
-	private Level level;
+    @Inject(method = "isDetached()Z", at = @At("HEAD"), cancellable = true)
+    private void onIsDetached(CallbackInfoReturnable<Boolean> cir) {
+        AobaClient client = AobaClient.getInstance();
+        if (client != null && client.moduleManager != null && client.moduleManager.freecam.state.getValue()) {
+            cir.setReturnValue(true);
+        }
+    }
 
-	@Inject(at = {
-			@At("HEAD") }, method = "setEntity(Lnet/minecraft/world/entity/Entity;)V", cancellable = true)
-	private void onSetEntity(Entity entity, CallbackInfo ci) {
-		AobaClient aoba = Aoba.getInstance();
+    @Inject(
+            method = "getFluidInCamera()Lnet/minecraft/world/level/material/FogType;",
+            at = @At("HEAD"),
+            cancellable = true)
+    private void onGetSubmersionType(CallbackInfoReturnable<FogType> cir) {
+        AobaClient client = AobaClient.getInstance();
+        if (client == null || client.moduleManager == null) return;
 
-		if (aoba != null && aoba.moduleManager.freecam.state.getValue() && this.entity != null) {
-			ci.cancel();
-		}
-	}
-
-	@Inject(at = { @At("HEAD") }, method = "alignWithEntity(F)V", cancellable = true)
-	private void onAlignWithEntity(float partialTicks, CallbackInfo ci) {
-		AobaClient aoba = Aoba.getInstance();
-
-		if (aoba != null && aoba.moduleManager.freecam.state.getValue() && this.entity != null) {
-			ci.cancel();
-		}
-	}
-
-	@Inject(at = { @At("HEAD") }, method = "isDetached()Z", cancellable = true)
-	private void onIsDetached(CallbackInfoReturnable<Boolean> cir) {
-		AobaClient aoba = Aoba.getInstance();
-		if (aoba != null && aoba.moduleManager.freecam.state.getValue()) {
-			cir.setReturnValue(true);
-		}
-	}
-
-	@Inject(at = {
-			@At("HEAD") }, method = "getFluidInCamera()Lnet/minecraft/world/level/material/FogType;", cancellable = true)
-	private void onGetSubmersionType(CallbackInfoReturnable<FogType> cir) {
-		AobaClient aoba = Aoba.getInstance();
-		if (aoba == null)
-			return;
-
-		Freecam freecam = aoba.moduleManager.freecam;
-		NoRender norender = aoba.moduleManager.norender;
-
-		if (freecam.state.getValue() || (norender.state.getValue() && norender.getNoLiquidOverlay())) {
-			cir.setReturnValue(FogType.NONE);
-		}
-	}
+        Freecam freecam = client.moduleManager.freecam;
+        NoRender noRender = client.moduleManager.norender;
+        if (freecam.state.getValue() || (noRender.state.getValue() && noRender.getNoLiquidOverlay())) {
+            cir.setReturnValue(FogType.NONE);
+        }
+    }
 }

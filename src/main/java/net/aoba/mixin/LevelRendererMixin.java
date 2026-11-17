@@ -26,6 +26,7 @@ import net.aoba.rendering.Renderer3D;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.state.LevelRenderState;
 import net.minecraft.client.renderer.culling.Frustum;
 
 @Mixin(LevelRenderer.class)
@@ -49,6 +50,11 @@ public class LevelRendererMixin {
         renderer.render();
 
         if (aoba.render2D != null) aoba.render2D.captureGameSnapshot();
+    }
+
+    @Inject(at = @At("HEAD"), method = "extractBlockOutline(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/state/LevelRenderState;)V", cancellable = true)
+    private void primex$disableBlockOutline(Camera camera, LevelRenderState renderState, CallbackInfo ci) {
+        if (Aoba.getInstance().moduleManager.freecam.state.getValue()) ci.cancel();
     }
 
     @Inject(at = @At("HEAD"), method = "doesMobEffectBlockSky(Lnet/minecraft/client/Camera;)Z", cancellable = true)

@@ -5,73 +5,59 @@
  * Licensed under the GNU General Public License, Version 3 or later.
  * See <http://www.gnu.org/licenses/>.
  */
-
 package net.aoba.gui.components.widgets;
-
-import static net.aoba.AobaClient.MC;
 
 import java.util.function.Consumer;
 
-import net.aoba.Aoba;
-import net.aoba.gui.GuiManager;
-import net.aoba.gui.colors.Colors;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.aoba.rendering.Renderer2D;
-import net.aoba.rendering.shaders.Shader;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
+/** 1.21.11 GuiGraphics implementation of the legacy image button. */
 public class AobaImageButtonWidget extends AbstractButton {
-	private Consumer<AobaImageButtonWidget> pressAction;
-	private final Identifier image;
-	private boolean background = true;
-	private static final Shader IMAGE_SHADER = Shader.solid(Colors.White);
+    private Consumer<AobaImageButtonWidget> pressAction;
+    private final Identifier image;
+    private final boolean background;
 
-	public AobaImageButtonWidget(int x, int y, int width, int height, Identifier image) {
-		super(x, y, width, height, Component.empty());
+    public AobaImageButtonWidget(int x, int y, int width, int height, Identifier image) {
+        this(x, y, width, height, image, true);
+    }
 
-		this.image = image;
-	}
+    public AobaImageButtonWidget(int x, int y, int width, int height, Identifier image, boolean background) {
+        super(x, y, width, height, Component.empty());
+        this.image = image;
+        this.background = background;
+    }
 
-	public AobaImageButtonWidget(int x, int y, int width, int height, Identifier image,
-			boolean background) {
-		super(x, y, width, height, Component.empty());
+    public void setPressAction(Consumer<AobaImageButtonWidget> pressAction) {
+        this.pressAction = pressAction;
+    }
 
-		this.image = image;
-		this.background = background;
-	}
+    @Override
+    public void onPress(InputWithModifiers input) {
+        if (pressAction != null) pressAction.accept(this);
+    }
 
-	public void setPressAction(Consumer<AobaImageButtonWidget> pressAction) {
-		this.pressAction = pressAction;
-	}
+    @Override
+    protected void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        if (background) {
+            int fill = isHovered() ? 0xFF30213F : 0xFF19151F;
+            int edge = isHovered() ? 0xFFB98AFF : 0xFF554267;
+            graphics.fill(getX(), getY(), getX() + width, getY() + height, fill);
+            graphics.fill(getX(), getY(), getX() + width, getY() + 1, edge);
+            graphics.fill(getX(), getY() + height - 1, getX() + width, getY() + height, edge);
+            graphics.fill(getX(), getY(), getX() + 1, getY() + height, edge);
+            graphics.fill(getX() + width - 1, getY(), getX() + width, getY() + height, edge);
+        }
+        graphics.blit(RenderPipelines.GUI_TEXTURED, image, getX(), getY(),
+                0.0f, 0.0f, width, height, width, height);
+    }
 
-	@Override
-	public void onPress(InputWithModifiers input) {
-		if (pressAction != null) {
-			pressAction.accept(this);
-		}
-	}
-
-	@Override
-	protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-		if (background) {
-			Shader bgEffect = isHovered() ? GuiManager.buttonHoverBackgroundColor.getValue()
-					: GuiManager.buttonBackgroundColor.getValue();
-			Shader bdEffect = GuiManager.buttonBorderColor.getValue();
-
-			Renderer2D renderer = Aoba.getInstance().render2D;
-			renderer.beginFrame(graphics, MC.getDeltaTracker());
-			renderer.drawOutlinedRoundedBox(getX(), getY(), width, height,
-					GuiManager.roundingRadius.getValue(), bdEffect, bgEffect);
-			renderer.drawTexturedQuad(image, getX(), getY(), width, height, IMAGE_SHADER);
-		}
-	}
-
-	@Override
-	protected void updateWidgetNarration(NarrationElementOutput output) {
-		
-	}
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput output) {
+    }
 }

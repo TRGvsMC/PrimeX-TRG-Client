@@ -104,7 +104,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
             if (!contained.isEmpty()) {
                 int itemX = panelX + 8 + column * 18;
                 int itemY = panelY + 7 + row * 18;
-                context.renderItem(contained, itemX, itemY);
+                context.renderItemWithoutEntity(contained, itemX, itemY);
                 if (mouseX >= itemX && mouseX < itemX + 16 && mouseY >= itemY && mouseY < itemY + 16) {
                     context.setTooltipForNextFrame(font, getTooltipFromContainerItem(contained),
                             contained.getTooltipImage(), mouseX, mouseY);

@@ -314,7 +314,7 @@ public class Renderer2D extends AbstractRenderer {
 	 * Draws an item at the given position.
 	 */
 	public void drawItem(ItemStack stack, float x, float y) {
-		drawContext.renderItem(stack, (int) x, (int) y);
+		drawContext.renderItemWithoutEntity(stack, (int) x, (int) y);
 	}
 
 	/**

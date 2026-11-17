@@ -194,7 +194,7 @@ public class ShaderManager {
 	}
 
 	private static RenderPipeline buildShaderPipeline3D(String id) {
-		return RenderPipelines.register(RenderPipeline.builder()
+		return RenderPipeline.builder()
 				.withVertexShader(aobaShader(""))
 				.withFragmentShader(aobaShader(id))
 				.withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)

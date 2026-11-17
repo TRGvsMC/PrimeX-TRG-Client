@@ -45,7 +45,7 @@ public class AltScreen extends Screen {
 		LinearLayout topRow = LinearLayout.horizontal().spacing(4);
 		topRow.addChild(Button.builder(Component.nullToEmpty("Direct Login"), b -> minecraft.setScreen(new DirectLoginAltScreen(this)))
 				.width(100).build());
-		topRow.addChild(Button.builder(Component.nullToEmpty("Add Alt"), b -> minecraft.gui.setScreen(new AddAltScreen(this)))
+		topRow.addChild(Button.builder(Component.nullToEmpty("Add Alt"), b -> minecraft.setScreen(new AddAltScreen(this)))
 				.width(100).build());
 
 		LinearLayout bottomRow = LinearLayout.horizontal().spacing(4);
@@ -59,7 +59,7 @@ public class AltScreen extends Screen {
 		editButton.active = false;
 		bottomRow.addChild(editButton);
 
-		bottomRow.addChild(Button.builder(Component.nullToEmpty("Cancel"), b -> minecraft.gui.setScreen(parentScreen))
+		bottomRow.addChild(Button.builder(Component.nullToEmpty("Cancel"), b -> minecraft.setScreen(parentScreen))
 				.width(100).build());
 
 		LinearLayout footer = layout.addToFooter(LinearLayout.vertical().spacing(4));
@@ -87,7 +87,7 @@ public class AltScreen extends Screen {
 	}
 
     @Override
-    public void render(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
+    public void render(final GuiGraphics graphics, final int mouseX, final int mouseY, final float a) {
         super.render(graphics, mouseX, mouseY, a);
 		graphics.drawCenteredString(font,
 				"Currently Logged Into: " + Minecraft.getInstance().getUser().getName(), width / 2, 20,
@@ -99,7 +99,7 @@ public class AltScreen extends Screen {
 	}
 
 	public void refreshAltList() {
-		minecraft.gui.setScreen(new AltScreen(parentScreen));
+		minecraft.setScreen(new AltScreen(parentScreen));
 	}
 
 	public void setSelected(AltSelectionList.Entry selected) {
@@ -131,7 +131,7 @@ public class AltScreen extends Screen {
 		if (alt == null) {
 			return;
 		}
-		minecraft.gui.setScreen(new EditAltScreen(this, alt));
+		minecraft.setScreen(new EditAltScreen(this, alt));
 	}
 
 	public void deleteSelected() {
@@ -144,10 +144,11 @@ public class AltScreen extends Screen {
 	}
 
 	@Override
-	protected void extractPanorama(final GuiGraphicsExtractor graphics, final float a){
+	protected void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		try {
-			AOBA_ROTATING_PANORAMA_RENDERER.render(graphics, this.width, this.height, true);
-		} catch (IllegalStateException e) {
+			AOBA_ROTATING_PANORAMA_RENDERER.render(graphics, width, height, true);
+		} catch (IllegalStateException ignored) {
+			graphics.fill(0, 0, width, height, 0xFF0B0A10);
 		}
 	}
 }

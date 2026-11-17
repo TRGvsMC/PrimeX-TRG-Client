@@ -106,7 +106,7 @@ public class AltSelectionList extends ObjectSelectionList<AltSelectionList.Entry
 			return alt;
 		}
 
-		private void drawHead(GuiGraphicsExtractor drawContext, int x, int y) {
+		private void drawHead(GuiGraphics drawContext, int x, int y) {
 			PlayerFaceRenderer.draw(drawContext, entry.getSkin(), x, y, 24);
 		}
 
@@ -126,7 +126,7 @@ public class AltSelectionList extends ObjectSelectionList<AltSelectionList.Entry
 		}
 
 		@Override
-		public void renderContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
+		public void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, float a) {
 			int x = getX();
 			int y = getY();
 
@@ -143,8 +143,8 @@ public class AltSelectionList extends ObjectSelectionList<AltSelectionList.Entry
 			Font textRenderer = mc.font;
 			graphics.drawString(textRenderer, "Username: " + alt.getEmail(), (x + 32 + 3), (y + 2),
 					0xFFFFFFFF);
-			graphics.text(textRenderer, description, (x + 32 + 3), (y + 12),
-					alt.isCracked() ? 0xFFFF0000 : 0xFF00FF00, true);
+			graphics.drawString(textRenderer, description, x + 35, y + 12,
+					alt.isCracked() ? 0xFFFF7777 : 0xFF78D99A, false);
 
 			// Draws the respective player head.
 			drawHead(graphics, x + 4, y + 4);

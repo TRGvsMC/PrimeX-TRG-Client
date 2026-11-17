@@ -113,7 +113,7 @@ public class AddonSelectionList extends ObjectSelectionList<AddonSelectionList.E
 		}
 
 		@Override
-		public void renderContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
+		public void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, float a) {
 			int x = getX();
 			int y = getY();
 
@@ -123,9 +123,13 @@ public class AddonSelectionList extends ObjectSelectionList<AddonSelectionList.E
 			graphics.fill(x + 7, y + 7, x + 41, y + 41, 0xFFFFFFFF);
 			graphics.fill(x + 8, y + 8, x + 40, y + 40, 0xFF000000);
 
-			graphics.blit(RenderPipelines.GUI_TEXTURED, iconIdentifier, x + 8, y + 8, 0.0F, 0.0F, 32, 32, 32, 32);
+			if (iconIdentifier != null) {
+				graphics.blit(RenderPipelines.GUI_TEXTURED, iconIdentifier, x + 8, y + 8, 0.0F, 0.0F, 32, 32, 32, 32);
+			} else {
+				graphics.fill(x + 8, y + 8, x + 40, y + 40, 0xFF30213F);
+			}
 			graphics.drawString(textRenderer, addon.getName(), (x + 54), y + 10, 0xFFFFFFFF);
-			graphics.text(textRenderer, addon.getDescription(), (x + 54), y + 22, 0xFFFFFFFF);
+			graphics.drawString(textRenderer, addon.getDescription(), x + 54, y + 22, 0xFFB8AFC4, false);
 		}
 	}
 }

@@ -76,7 +76,7 @@ public class AddonScreen extends Screen {
 	}
 
 	@Override
-	public void render(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
+	public void render(final GuiGraphics graphics, final int mouseX, final int mouseY, final float a) {
 		super.render(graphics, mouseX, mouseY, a);
 		graphics.drawCenteredString(font, "Addons", 145, 16, 0xFFFFFFFF);
 
@@ -92,8 +92,8 @@ public class AddonScreen extends Screen {
 				graphics.blit(RenderPipelines.GUI_TEXTURED, entry.getIcon(), 282, 60, 0.0F, 0.0F, 48, 48, 48, 48);
 			}
 			graphics.drawString(font, selectedAddon.getName(), 338, 68, 0xFFFFFFFF);
-			graphics.text(font, selectedAddon.getVersion(), 338, 80, 0xFFFFFFFF);
-			graphics.text(font, "By " + selectedAddon.getAuthor(), 338, 92, 0xFFFFFFFF);
+			graphics.drawString(font, selectedAddon.getVersion(), 338, 80, 0xFFB98AFF, false);
+			graphics.drawString(font, "By " + selectedAddon.getAuthor(), 338, 92, 0xFFD8C9EC, false);
 		}
 
 	}
@@ -113,10 +113,11 @@ public class AddonScreen extends Screen {
 	}
 
 	@Override
-	protected void extractPanorama(final GuiGraphicsExtractor graphics, final float a){
+	protected void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		try {
-			AOBA_ROTATING_PANORAMA_RENDERER.render(graphics, this.width, this.height, true);
-		} catch (IllegalStateException e) {
+			AOBA_ROTATING_PANORAMA_RENDERER.render(graphics, width, height, true);
+		} catch (IllegalStateException ignored) {
+			graphics.fill(0, 0, width, height, 0xFF0B0A10);
 		}
 	}
 }

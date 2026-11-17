@@ -190,7 +190,7 @@ public class GuiManager implements KeyDownListener, TickListener, Render2DListen
 			.displayName("Line Thickness").description("The thickness of borders and outlines.").defaultValue(0.5f)
 			.minValue(0.5f).maxValue(4f).step(0.5f).build();
 
-	public static FontSetting fontSetting = FontSetting.builder().id("aoba_font").displayName("Font")
+	public static FontSetting fontSetting = FontSetting.builder().id("primex_font").displayName("Font")
 			.description("The font used by PRIMEX TRG CLIENT.").fontName(FontManager.DEFAULT_FONT).build();
 
 	public ModuleSelectorHud moduleSelector;

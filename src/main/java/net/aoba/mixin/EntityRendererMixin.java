@@ -32,7 +32,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
         }
     }
 
-    @Inject(method = "submitNameTag(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V", at = @At("RETURN"))
+    @Inject(method = "submitNameTag(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V", at = @At("RETURN"))
     private void primex$customNameTagEnd(EntityRenderState state, PoseStack poseStack,
             SubmitNodeCollector submitNodeCollector, CameraRenderState camera, CallbackInfo ci) {
         if (primex$shouldCustomizeNameTag(state)) poseStack.popPose();
@@ -41,7 +41,8 @@ public abstract class EntityRendererMixin<T extends Entity> {
     @Unique
     private boolean primex$shouldCustomizeNameTag(EntityRenderState state) {
         Nametags nametags = Aoba.getInstance().moduleManager.nametags;
-        if (nametags == null || !nametags.state.getValue() || state.nameTagAttachment == null) return false;
+        if (Aoba.getInstance() == null || Aoba.getInstance().moduleManager == null || nametags == null
+                || !nametags.state.getValue() || state.nameTagAttachment == null) return false;
         return !nametags.getPlayersOnly() || state instanceof AvatarRenderState;
     }
 }

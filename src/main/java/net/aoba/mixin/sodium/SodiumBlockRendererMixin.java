@@ -18,7 +18,7 @@ public abstract class SodiumBlockRendererMixin {
 	@Inject(method = "renderModel", at = @At(value = "INVOKE", target = "Lnet/caffeinemc/mods/sodium/client/model/color/ColorProviderRegistry;getColorProvider(Lnet/minecraft/world/level/block/Block;)Lnet/caffeinemc/mods/sodium/client/model/color/ColorProvider;", remap = true), cancellable = true)
 	public void onRenderModel(BlockStateModel model, BlockState state, BlockPos pos, BlockPos origin, CallbackInfo ci) {
 		AobaClient aoba = Aoba.getInstance();
-		if (aoba == null) return;
+		if (aoba == null || aoba.moduleManager == null) return;
 		XRay xray = aoba.moduleManager.xray;
 		if (xray.state.getValue() && !xray.isXRayBlock(state.getBlock())) {
 			ci.cancel();

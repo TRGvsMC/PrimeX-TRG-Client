@@ -4,6 +4,7 @@ on: [pull_request, push]
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         java: [21]
         os: [ubuntu-22.04, windows-2022]
@@ -18,9 +19,13 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'microsoft'
-      - name: build
+      - name: build (Linux)
+        if: runner.os == 'Linux'
         run: ./gradlew build
-      - name: capture build artifacts
+      - name: build (Windows)
+        if: runner.os == 'Windows'
+        run: .\gradlew.bat build
+      - name: capture remapped client artifact
         if: ${{ runner.os == 'Linux' }}
         uses: actions/upload-artifact@v4.6.0
         with:

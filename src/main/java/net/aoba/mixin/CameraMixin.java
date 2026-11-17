@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.aoba.Aoba;
 import net.aoba.AobaClient;
 import net.aoba.module.modules.movement.Freecam;
 import net.aoba.module.modules.render.NoRender;
@@ -31,7 +32,7 @@ public class CameraMixin {
             cancellable = true)
     private void primex$preserveFreecamCamera(Level level, Entity focusedEntity, boolean detached,
             boolean mirrored, float partialTick, CallbackInfo ci) {
-        AobaClient client = AobaClient.getInstance();
+        AobaClient client = Aoba.getInstance();
         if (client != null && client.moduleManager != null
                 && client.moduleManager.freecam.state.getValue() && this.entity != null) {
             ci.cancel();

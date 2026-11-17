@@ -22,12 +22,12 @@ import com.mojang.blaze3d.platform.DepthTestFunction;
 import com.mojang.blaze3d.shaders.UniformType;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import net.minecraft.client.gl.GpuSampler;
+import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gl.MappableRingBuffer;
+import net.minecraft.client.renderer.MappableRingBuffer;
 import net.minecraft.client.renderer.CachedOrthoProjectionMatrixBuffer;
 
 /**

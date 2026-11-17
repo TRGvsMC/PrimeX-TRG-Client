@@ -34,7 +34,7 @@ import com.mojang.blaze3d.systems.RenderPass;
 
 
 import com.mojang.blaze3d.textures.FilterMode;
-import net.minecraft.client.gl.GpuSampler;
+import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;

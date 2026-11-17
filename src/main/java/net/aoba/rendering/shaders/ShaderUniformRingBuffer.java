@@ -11,7 +11,7 @@ import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.systems.CommandEncoder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gl.MappableRingBuffer;
+import net.minecraft.client.renderer.MappableRingBuffer;
 
 /**
  * Manages per-shader UBO uploads.

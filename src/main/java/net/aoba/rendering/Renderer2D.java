@@ -34,7 +34,7 @@ import com.mojang.blaze3d.systems.RenderPass;
 
 
 import com.mojang.blaze3d.textures.FilterMode;
-import net.minecraft.client.gl.GpuSampler;
+import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -48,7 +48,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.font.TextRenderable;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gl.MappableRingBuffer;
+import net.minecraft.client.renderer.MappableRingBuffer;
 import net.minecraft.client.renderer.CachedOrthoProjectionMatrixBuffer;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.Identifier;

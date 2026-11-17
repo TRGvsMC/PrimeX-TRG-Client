@@ -1,7 +1,7 @@
 package net.aoba.rendering.msaa;
 
 import com.mojang.blaze3d.systems.RenderPass;
-import net.minecraft.client.gl.GpuSampler;
+import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import org.jspecify.annotations.Nullable;
 

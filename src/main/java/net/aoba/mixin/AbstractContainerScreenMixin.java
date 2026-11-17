@@ -93,7 +93,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
             }
         }
 
-        List<ItemStack> items = contents.itemCopies().toList();
+        Iterable<ItemStack> items = contents.nonEmptyItemsCopy();
         int panelX = x + 8;
         int panelY = y - 82;
         primex$drawShulkerBackground(context, panelX, panelY, tint);

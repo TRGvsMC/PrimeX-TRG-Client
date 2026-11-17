@@ -1,36 +1,36 @@
 {
-	"schemaVersion": 1,
-	"id": "aoba",
-	"version": "1.0.0",
-	"name": "PRIMEX TRG CLIENT",
-	"description": "PRIMEX TRG CLIENT — a Minecraft Fabric client fork.",
-	"authors": [
-		"TRGvsMC",
-		"Aoba contributors"
-	],
-	"contact": {
-		"homepage": "https://github.com/TRGvsMC/PrimeX-TRG-Client",
-		"sources": "https://github.com/TRGvsMC/PrimeX-TRG-Client",
-		"issues": "https://github.com/TRGvsMC/PrimeX-TRG-Client/issues",
-		"discord": "https://discord.gg/jEu6WfnyR6"
-	},
-	"license": "GPL-3.0-or-later",
-	"icon": "assets/aoba/icon.png",
-	"environment": "client",
-	"entrypoints": {
-		"main": [
-			"net.aoba.Aoba"
-		]
-	},
-	"mixins": [
-		"aoba.mixins.json",
-		"aoba-sodium.mixins.json"
-	],
-	"accessWidener" : "aoba.accesswidener",
-	"depends": {
-		"fabricloader": ">=0.19.5",
-		"minecraft": "~26.3",
-		"java": ">=25",
-		"fabric-api": "*"
-	}
+  "schemaVersion": 1,
+  "id": "aoba",
+  "version": "${version}",
+  "name": "PRIMEX TRG CLIENT",
+  "description": "PRIMEX TRG CLIENT — a Minecraft Fabric client fork.",
+  "authors": [
+    "TRGvsMC",
+    "Aoba contributors"
+  ],
+  "contact": {
+    "homepage": "https://github.com/TRGvsMC/PrimeX-TRG-Client",
+    "sources": "https://github.com/TRGvsMC/PrimeX-TRG-Client",
+    "issues": "https://github.com/TRGvsMC/PrimeX-TRG-Client/issues",
+    "discord": "https://discord.gg/jEu6WfnyR6"
+  },
+  "license": "GPL-3.0-or-later",
+  "icon": "assets/aoba/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "net.aoba.Aoba"
+    ]
+  },
+  "mixins": [
+    "aoba.mixins.json",
+    "aoba-sodium.mixins.json"
+  ],
+  "accessWidener": "aoba.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
 }

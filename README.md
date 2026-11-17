@@ -1,19 +1,20 @@
 # PRIMEX TRG CLIENT
 
-A Fabric client fork based on Aoba Client, being rebranded and prepared for a Minecraft 1.21.11 migration.
+A Fabric client fork based on Aoba Client. This branch is being ported from the upstream Minecraft 26.3 source baseline to Minecraft 1.21.11.
 
-> **Compatibility status:** This is an in-progress Phase 01 rebrand. The checked-in source baseline still targets Minecraft **26.3**, Java **25**, Fabric Loader **0.19.5**, and Fabric API **0.161.0+26.3**. It is **not yet a Minecraft 1.21.11 build**. Do not install it in a 1.21.11 instance until the source/API port is complete and verified.
+> **Port status:** The build configuration now targets Minecraft **1.21.11** and Java **21**, but the Java sources and mixins are still undergoing the required API backport. This branch is not a verified 1.21.11 client until CI compilation, metadata/mixin validation, and runtime checks pass. Do not install it as a release build yet.
 
 ## Project identity
 
 - Display name: PRIMEX TRG CLIENT
-- Current source namespace and mod ID: `net.aoba` / `aoba` (retained temporarily to preserve existing entrypoints, add-on discovery, mixins, access widener, and saved-data compatibility)
-- Build system: Gradle with Fabric Loom
+- Target: Minecraft 1.21.11 / Java 21 / Fabric
+- Current internal mod ID and namespace: `aoba` / `net.aoba` (retained to preserve entrypoints, add-on discovery, mixins, access widener, and saved-data compatibility)
+- Artifact target: `PRIMEX-TRG-CLIENT-1.21.11.jar`
 - License: GNU GPL v3 or later; see [LICENSE](LICENSE)
 
-## Build (current source baseline)
+## Build
 
-Requirements: JDK 25 and the Gradle wrapper.
+Requirements: JDK 21 and the Gradle wrapper.
 
 ```bash
 ./gradlew build
@@ -25,11 +26,13 @@ On Windows:
 gradlew.bat build
 ```
 
-The build currently resolves Minecraft 26.3 dependencies from `gradle.properties`. The 1.21.11 migration is not represented as complete by changing only metadata or dependency version strings.
+## Compatibility pins
 
-## Phase 01 migration notes
+The build uses Fabric API 0.141.1+1.21.11, Fabric Loader 0.19.5, Sodium 0.8.14, Lithium 0.21.1, Iris 1.10.8 and Mod Menu 17.0.1 as the 1.21.11 integration baseline. Optional integrations are compile-only and are not nested inside the client jar.
 
-Minecraft 26.3 uses the post-1.21.11 unobfuscated game and newer client/rendering APIs. Minecraft 1.21.11 is the final obfuscated release, so a genuine port requires source-level remapping and API work across the client, mixins, renderers, widgets, and optional integrations. The Aoba-derived package and resource namespace are retained during this initial rebrand to avoid breaking internal references.
+## Porting notes
+
+Minecraft 26.3 uses the newer unobfuscated game and rendering APIs. Minecraft 1.21.11 uses the obfuscated distribution and the remapping Loom plugin. This requires real source-level work in renderers, GUI drawing, mixin targets, Sodium hooks, and access wideners; changing Gradle metadata does not complete that work.
 
 ## Upstream attribution
 

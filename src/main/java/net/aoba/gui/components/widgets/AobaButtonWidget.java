@@ -48,5 +48,6 @@ public class AobaButtonWidget extends AbstractButton {
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput output) {
+        defaultButtonNarrationText(output);
     }
 }

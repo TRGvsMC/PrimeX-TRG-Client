@@ -73,13 +73,13 @@ public class EditProxyScreen extends Screen {
 	}
 
     @Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		super.render(graphics, mouseX, mouseY, delta);
-		graphics.drawCenteredString(font, "EDIT PROXY", width / 2, 20, 0xFFF4EDFF);
-		graphics.drawString(font, "IP ADDRESS", width / 2 - 100, height / 2 - 90, 0xFFB98AFF, false);
-		graphics.drawString(font, "PORT", width / 2 - 100, height / 2 - 50, 0xFFB98AFF, false);
-		graphics.drawString(font, "USERNAME", width / 2 - 100, height / 2 - 10, 0xFFB98AFF, false);
-		graphics.drawString(font, "PASSWORD", width / 2 - 100, height / 2 + 30, 0xFFB98AFF, false);
+	public void render(final GuiGraphics graphics, final int mouseX, final int mouseY, final float a) {
+		super.render(graphics, mouseX, mouseY, a);
+		graphics.drawCenteredString(font, "Edit Proxy", width / 2, 20, 0xFFFFFFFF);
+		graphics.drawString(font, "IP:", width / 2 - 100, height / 2 - 90, 0xFFFFFFFF);
+		graphics.drawString(font, "Port:", width / 2 - 100, height / 2 - 50, 0xFFFFFFFF);
+		graphics.drawString(font, "Username:", width / 2 - 100, height / 2 - 10, 0xFFFFFFFF);
+		graphics.drawString(font, "Password:", width / 2 - 100, height / 2 + 30, 0xFFFFFFFF);
 	}
 
 	private void updateSaveButtonState() {

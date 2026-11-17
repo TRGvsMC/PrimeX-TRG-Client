@@ -100,8 +100,8 @@ public class AddProxyScreen extends Screen {
 		graphics.drawCenteredString(font, "Add Proxy", width / 2, 20, 0xFFFFFFFF);
 
 		graphics.drawString(font, "IP Address:", width / 2 - 100, height / 2 - 90, 0xFFFFFFFF);
-		graphics.drawString(font, "PORT", width / 2 - 100, height / 2 - 50, 0xFFB98AFF, false);
-		graphics.drawString(font, "USERNAME", width / 2 - 100, height / 2 - 10, 0xFFB98AFF, false);
-		graphics.drawString(font, "PASSWORD", width / 2 - 100, height / 2 + 30, 0xFFB98AFF, false);
+		graphics.drawString(font, "Port:", width / 2 - 100, height / 2 - 50, 0xFFFFFFFF);
+		graphics.drawString(font, "Username:", width / 2 - 100, height / 2 - 10, 0xFFFFFFFF);
+		graphics.drawString(font, "Password:", width / 2 - 100, height / 2 + 30, 0xFFFFFFFF);
 	}
 }

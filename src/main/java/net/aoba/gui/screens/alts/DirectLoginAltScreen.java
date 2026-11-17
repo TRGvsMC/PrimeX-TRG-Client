@@ -70,9 +70,10 @@ public class DirectLoginAltScreen extends Screen {
 		graphics.drawCenteredString(font, title.getString(), width / 2, 20, 0xFFFFFFFF);
 		graphics.drawString(font, "Enter Username/Email", width / 2 - 100, height / 2 - 60,
 				0xFFFFFFFF);
-				if (didLoginError) {
+		
+		if (didLoginError) {
 			graphics.drawString(font, "Incorrect Login (Try using Email rather than Username)",
-					width / 2 - 140, 116, 0xFFFF7777, false);
+					width / 2 - 140, 116, 0xFFFF0000);
 		}
 
 	}

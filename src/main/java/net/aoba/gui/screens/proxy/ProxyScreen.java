@@ -129,9 +129,8 @@ public class ProxyScreen extends Screen {
 	@Override
 	protected void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		try {
-			AOBA_ROTATING_PANORAMA_RENDERER.render(graphics, width, height, true);
-		} catch (IllegalStateException ignored) {
-			graphics.fill(0, 0, width, height, 0xFF0B0A10);
+			AOBA_ROTATING_PANORAMA_RENDERER.render(graphics, this.width, this.height, true);
+		} catch (IllegalStateException e) {
 		}
 	}
 }

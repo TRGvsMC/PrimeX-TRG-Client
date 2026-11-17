@@ -116,7 +116,7 @@ public class Renderer2D extends AbstractRenderer {
 		float[] verts = { x1, y1, x2, y1, x2, y2, x1, y1, x2, y2, x1, y2 };
 		float[] uvs = { 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1 };
 		Matrix3x2fc pose = new Matrix3x2f(drawContext.pose());
-		ScreenRectangle scissor = drawContext.scissorStack.peek();
+		ScreenRectangle scissor = scissorStack.peek();
 		submitElement(pose, verts, uvs, 6, scissor, shader, texture);
 	}
 
@@ -131,7 +131,7 @@ public class Renderer2D extends AbstractRenderer {
 		float[] verts = { x, y, x2, y, x2, y2, x, y, x2, y2, x, y2 };
 		float[] uvs = { u0, v0, u1, v0, u1, v1, u0, v0, u1, v1, u0, v1 };
 		Matrix3x2fc pose = new Matrix3x2f(drawContext.pose());
-		ScreenRectangle scissor = drawContext.scissorStack.peek();
+		ScreenRectangle scissor = scissorStack.peek();
 		submitElement(pose, verts, uvs, 6, scissor, shader, atlas);
 	}
 
@@ -356,7 +356,7 @@ public class Renderer2D extends AbstractRenderer {
 			}
 
 			Matrix3x2fc pose = new Matrix3x2f(drawContext.pose());
-			ScreenRectangle scissor = drawContext.scissorStack.peek();
+			ScreenRectangle scissor = scissorStack.peek();
 			GpuSampler textSampler = RenderSystem.getSamplerCache().getRepeat(FilterMode.LINEAR);
 			Font.PreparedText prepared = font.prepareText(text, 0, 0, 0xFFFFFFFF, false, 0);
 			prepared.visit(new Font.GlyphVisitor() {

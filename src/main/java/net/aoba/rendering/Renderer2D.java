@@ -19,7 +19,7 @@ import java.util.Objects;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix3x2fc;
 import org.lwjgl.system.MemoryUtil;
-import com.mojang.blaze3d.ProjectionType;
+import com.mojang.blaze3d.systems.ProjectionType;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;

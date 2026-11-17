@@ -1,7 +1,6 @@
 package net.aoba.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -11,7 +10,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.aoba.Aoba;
 import net.aoba.module.modules.combat.Nametags;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -22,11 +20,6 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(EntityRenderer.class)
 public abstract class EntityRendererMixin<T extends Entity> {
-    @Shadow
-    public Font getFont() {
-        return null;
-    }
-
     @Inject(method = "submitNameTag(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V", at = @At("HEAD"))
     private void primex$customNameTagStart(EntityRenderState state, PoseStack poseStack,
             SubmitNodeCollector submitNodeCollector, CameraRenderState camera, CallbackInfo ci) {

@@ -41,7 +41,7 @@ public class CameraMixin {
 
     @Inject(method = "isDetached()Z", at = @At("HEAD"), cancellable = true)
     private void onIsDetached(CallbackInfoReturnable<Boolean> cir) {
-        AobaClient client = AobaClient.getInstance();
+        AobaClient client = Aoba.getInstance();
         if (client != null && client.moduleManager != null && client.moduleManager.freecam.state.getValue()) {
             cir.setReturnValue(true);
         }
@@ -52,7 +52,7 @@ public class CameraMixin {
             at = @At("HEAD"),
             cancellable = true)
     private void onGetSubmersionType(CallbackInfoReturnable<FogType> cir) {
-        AobaClient client = AobaClient.getInstance();
+        AobaClient client = Aoba.getInstance();
         if (client == null || client.moduleManager == null) return;
 
         Freecam freecam = client.moduleManager.freecam;

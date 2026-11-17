@@ -5,7 +5,8 @@ import com.mojang.blaze3d.font.UnbakedGlyph;
 import com.mojang.blaze3d.font.GlyphBitmap;
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.renderpearl.api.textures.GpuTexture;
+import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.platform.NativeImage;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.client.gui.font.CodepointMap;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
@@ -171,7 +172,7 @@ public class AobaGlyphProvider implements GlyphProvider {
 								if (buf != null) {
 									RenderSystem.getDevice().createCommandEncoder().writeToTexture(
 											texture, buf,
-											0, 0, x, y, width, height);
+											NativeImage.Format.LUMINANCE, 0, 0, x, y, width, height);
 								}
 							}
 						}

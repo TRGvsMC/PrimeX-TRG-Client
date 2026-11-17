@@ -11,16 +11,14 @@ package net.aoba.rendering;
 import static net.aoba.AobaClient.MC;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -30,18 +28,18 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.renderpearl.api.GpuFormat;
-import com.mojang.renderpearl.api.buffers.GpuBuffer;
-import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
-import com.mojang.renderpearl.api.commands.CommandEncoder;
-import com.mojang.renderpearl.api.commands.RenderPass;
-import com.mojang.renderpearl.api.pipeline.IndexType;
-import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
-import com.mojang.renderpearl.api.textures.FilterMode;
-import com.mojang.renderpearl.api.textures.GpuSampler;
-import com.mojang.renderpearl.api.textures.GpuTexture;
-import com.mojang.renderpearl.api.textures.GpuTextureView;
-import com.mojang.renderpearl.api.vertex.VertexFormat;
+import com.mojang.blaze3d.textures.TextureFormat;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.systems.CommandEncoder;
+import com.mojang.blaze3d.systems.RenderPass;
+
+
+import com.mojang.blaze3d.textures.FilterMode;
+import net.minecraft.client.gl.GpuSampler;
+import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import net.aoba.Aoba;
 import net.aoba.rendering.shaders.Shader;
@@ -53,7 +51,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
+
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -74,12 +72,8 @@ public class Renderer3D extends AbstractRenderer {
 	private int offscreenWidth, offscreenHeight;
 
 	private PoseStack matrixStack;
-	private PoseStack currentPoseStack = new PoseStack();
-	private final ModelCapturingCollector modelCollector = new ModelCapturingCollector();
-	private final Set<Class<?>> excludedModels = new HashSet<>();
-	private Camera camera;
-	private CameraRenderState cameraState;
-	private Frustum frustum;
+		private Camera camera;
+		private Frustum frustum;
 	private DeltaTracker deltaTracker;
 
 	private final ByteBufferBuilder sharedByteBuffer = new ByteBufferBuilder(65536);
@@ -90,12 +84,10 @@ public class Renderer3D extends AbstractRenderer {
 	/**
 	 * Sets the per-frame context.
 	 */
-	public void beginFrame(PoseStack matrixStack, Frustum frustum, Camera camera, CameraRenderState cameraState,
-			DeltaTracker deltaTracker) {
+	public void beginFrame(PoseStack matrixStack, Frustum frustum, Camera camera, DeltaTracker deltaTracker) {
 		this.matrixStack = matrixStack;
 		this.frustum = frustum;
 		this.camera = camera;
-		this.cameraState = cameraState;
 		this.deltaTracker = deltaTracker;
 	}
 
@@ -119,7 +111,7 @@ public class Renderer3D extends AbstractRenderer {
 		if (!Objects.equals(currentShader, shader)) {
 			finalizeBatch();
 			currentShader = shader;
-			currentBuilder = new BufferBuilder(sharedByteBuffer, PrimitiveTopology.TRIANGLES,
+			currentBuilder = new BufferBuilder(sharedByteBuffer, VertexFormat.Mode.TRIANGLES,
 					DefaultVertexFormat.POSITION_TEX);
 		}
 	}
@@ -195,21 +187,6 @@ public class Renderer3D extends AbstractRenderer {
 		edge(currentBuilder, matrix4f, camera, x1, y1, z1, x2, y2, z2, thickness);
 	}
 
-	private EntityModel<LivingEntityRenderState> getEntityModel(
-			LivingEntityRenderer<LivingEntity, LivingEntityRenderState, EntityModel<LivingEntityRenderState>> renderer,
-			LivingEntityRenderState renderState) {
-
-		Class<?> rendererClass = renderer.getClass();
-		if (!excludedModels.contains(rendererClass)) {
-			try {
-				renderer.submit(renderState, currentPoseStack, modelCollector, cameraState);
-			} catch (Throwable throwable) {
-				excludedModels.add(rendererClass);
-				currentPoseStack = new PoseStack();
-			}
-		}
-		return renderer.getModel();
-	}
 
 	@SuppressWarnings("unchecked")
 	public void drawEntityModel(Entity entity, Shader shader) {
@@ -222,7 +199,7 @@ public class Renderer3D extends AbstractRenderer {
 
 			LivingEntityRenderer<LivingEntity, LivingEntityRenderState, EntityModel<LivingEntityRenderState>> leRenderer = (LivingEntityRenderer<LivingEntity, LivingEntityRenderState, EntityModel<LivingEntityRenderState>>) renderer;
 			LivingEntityRenderState renderState = leRenderer.createRenderState(livingEntity, partialTicks);
-			EntityModel<LivingEntityRenderState> model = getEntityModel(leRenderer, renderState);
+			EntityModel<LivingEntityRenderState> model = leRenderer.getModel();
 			model.setupAnim(renderState);
 			Direction sleepDirection = livingEntity.getBedOrientation();
 
@@ -246,7 +223,7 @@ public class Renderer3D extends AbstractRenderer {
 			}
 
 			if (!livingEntity.hasPose(Pose.SLEEPING)) {
-				matrixStack.rotateDegrees(Axis.YP, 180.0f - interpolatedBodyYaw);
+				matrixStack.mulPose(Axis.YP.rotationDegrees(180.0f - interpolatedBodyYaw));
 			}
 
 			if (livingEntity.deathTime > 0) {
@@ -254,15 +231,15 @@ public class Renderer3D extends AbstractRenderer {
 				if (dyingAngle > 1.0f) {
 					dyingAngle = 1.0f;
 				}
-				matrixStack.rotateDegrees(Axis.ZP, dyingAngle * 90f);
+				matrixStack.mulPose(Axis.ZP.rotationDegrees(dyingAngle * 90f));
 			} else if (livingEntity.isAutoSpinAttack()) {
-				matrixStack.rotateDegrees(Axis.XP, -90.0f - livingEntity.getXRot());
-				matrixStack.rotateDegrees(Axis.YP, (livingEntity.tickCount + partialTicks) * -75.0f);
+				matrixStack.mulPose(Axis.XP.rotationDegrees(-90.0f - livingEntity.getXRot()));
+				matrixStack.mulPose(Axis.YP.rotationDegrees((livingEntity.tickCount + partialTicks) * -75.0f));
 			} else if (livingEntity.hasPose(Pose.SLEEPING)) {
 				float sleepAngle = sleepDirection != null ? getYaw(sleepDirection) : interpolatedBodyYaw;
-				matrixStack.rotateDegrees(Axis.YP, sleepAngle);
-				matrixStack.rotateDegrees(Axis.ZP, 90.0f);
-				matrixStack.rotateDegrees(Axis.YP, 270.0f);
+				matrixStack.mulPose(Axis.YP.rotationDegrees(sleepAngle));
+				matrixStack.mulPose(Axis.ZP.rotationDegrees(90.0f));
+				matrixStack.mulPose(Axis.YP.rotationDegrees(270.0f));
 			}
 
 			matrixStack.scale(-1.0f, -1.0f, 1.0f);
@@ -325,7 +302,7 @@ public class Renderer3D extends AbstractRenderer {
 				ByteBuffer vertData = pendingBatches.get(i).mesh.vertexBuffer();
 				int size = vertData.remaining();
 				offsets[i] = offset;
-				try (GpuBufferSlice.MappedView mapped = vertexGpuBuffer.map(offset, size, false, true)) {
+				try (GpuBuffer.MappedView mapped = encoder.mapBuffer(vertexGpuBuffer.slice(offset, size), false, true)) {
 					MemoryUtil.memCopy(vertData, mapped.data());
 				}
 				offset += size;
@@ -339,16 +316,16 @@ public class Renderer3D extends AbstractRenderer {
 			List<GpuBufferSlice> paramSlices = getShaderParamsBuffer().upload(shadersList, 1);
 			RenderSystem.AutoStorageIndexBuffer seqBuf = RenderSystem.getSequentialBuffer(PrimitiveTopology.TRIANGLES);
 			GpuBuffer idxBuffer = seqBuf.getBuffer(maxIdx);
-			IndexType idxType = seqBuf.type();
+			VertexFormat.IndexType idxType = seqBuf.type();
 			GpuBufferSlice transforms = uploadIdentityTransform();
 			
 			ensureOffscreenResources(screenW, screenH);
 			try (RenderPass pass = encoder.createRenderPass(() -> "Aoba 3D Shaders", offscreenColorView,
-					Optional.of(new Vector4f(0.0F)), offscreenDepthView, OptionalDouble.of(1.0))) {
+					OptionalInt.of(0), offscreenDepthView, OptionalDouble.of(1.0))) {
 
 				RenderSystem.bindDefaultUniforms(pass);
 				pass.setUniform("DynamicTransforms", transforms);
-				pass.setVertexBuffer(0, vertexGpuBuffer.slice());
+				pass.setVertexBuffer(0, vertexGpuBuffer);
 				pass.setIndexBuffer(idxBuffer, idxType);
 				pass.disableScissor();
 
@@ -356,10 +333,10 @@ public class Renderer3D extends AbstractRenderer {
 
 				for (int i = 0; i < batchCount; i++) {
 					DrawBatch batch = pendingBatches.get(i);
-					pass.setPipeline(RenderSystem.getCompiledPipeline(batch.shader.pipeline3D()));
+					pass.setPipeline(batch.shader.pipeline3D());
 					pass.setUniform("AobaShaderParams", paramSlices.get(i));
-					pass.setUniform("Sampler0", getWhiteTextureView(), getWhiteSampler());
-					pass.drawIndexed(batch.mesh.drawState().indexCount(), 1, 0, offsets[i] / vertexSize, 0);
+					pass.bindTexture("Sampler0", getWhiteTextureView(), getWhiteSampler());
+					pass.drawIndexed(offsets[i] / vertexSize, 0, batch.mesh.drawState().indexCount(), 1);
 				}
 			}
 
@@ -389,14 +366,14 @@ public class Renderer3D extends AbstractRenderer {
 
 		destroyOffscreenResources();
 		offscreenColorTexture = RenderSystem.getDevice().createTexture("aoba_3d_color",
-				GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_TEXTURE_BINDING, GpuFormat.RGBA8_UNORM, width,
+				GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_TEXTURE_BINDING, TextureFormat.RGBA8, width,
 				height, 1, 1);
 		offscreenColorView = RenderSystem.getDevice().createTextureView(offscreenColorTexture);
 		offscreenDepthTexture = RenderSystem.getDevice().createTexture("aoba_3d_depth",
-				GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_TEXTURE_BINDING, GpuFormat.D32_FLOAT, width,
+				GpuTexture.USAGE_RENDER_ATTACHMENT | GpuTexture.USAGE_TEXTURE_BINDING, TextureFormat.DEPTH32, width,
 				height, 1, 1);
 		offscreenDepthView = RenderSystem.getDevice().createTextureView(offscreenDepthTexture);
-		offscreenSampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
+		offscreenSampler = RenderSystem.getSamplerCache().get(FilterMode.NEAREST);
 		offscreenWidth = width;
 		offscreenHeight = height;
 	}

@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.aoba.Aoba;
+import net.aoba.AobaClient;
 import net.aoba.module.modules.combat.Nametags;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -40,9 +41,10 @@ public abstract class EntityRendererMixin<T extends Entity> {
 
     @Unique
     private boolean primex$shouldCustomizeNameTag(EntityRenderState state) {
-        Nametags nametags = Aoba.getInstance().moduleManager.nametags;
-        if (Aoba.getInstance() == null || Aoba.getInstance().moduleManager == null || nametags == null
-                || !nametags.state.getValue() || state.nameTagAttachment == null) return false;
+        AobaClient client = Aoba.getInstance();
+        if (client == null || client.moduleManager == null || state.nameTagAttachment == null) return false;
+        Nametags nametags = client.moduleManager.nametags;
+        if (nametags == null || !nametags.state.getValue()) return false;
         return !nametags.getPlayersOnly() || state instanceof AvatarRenderState;
     }
 }
